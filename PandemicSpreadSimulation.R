@@ -33,8 +33,92 @@ FuncionGraficar <- function(matriz){
 
 ######################################################
 MedidasPrev <- function(matriz){
+ FASE1<-20   # Numero de infectados para activar la fase
+  FASE2<-200  # Numero de infectados para activar la fase
+  FASE3<-4000 # Numero de infectados para activar la fase
+  ControlDeFronteras <- 0 #0 Desactivado: La vigilancia es minima, 1 Activado: Cuarentena y estricta revision 
+ 
+ #---------------
+  x<-1/matriz[,6][matriz[,12]==1]
+  d<-(x-1)
+  T_Trabaja<-(1+(d*.2)) #Proporcion de aumento de la tasa de infeccion por trabajo
+ #---------------
+  x<-1/matriz[,6][matriz[,12]==1 & matriz[,13]==1]
+  d<-(x-1)
+  T_Transporte<-(1+(d*.2)) #Proporcion de aumento de la tasa de infeccion por transporte publico
+ #---------------
+  x<-1/matriz[,6][matriz[,12]==1 & matriz[,14]==2]
+  d<-(x-1)
+  T_MedioR<-(1+(d*.2)) #Proporcion de aumento de la tasa de infeccion por trabajo de medio riesgo
+  #---------------
+  x<-1/matriz[,6][matriz[,12]==1 & matriz[,14]==3]
+  d<-(x-1)
+  T_AltoR<-(1+(d*.3)) #Proporcion de aumento de la tasa de infeccion por trabajo de alto riesgo
 
-    return(matriz)
+  Infectados<-length(matriz[,4][matriz[,4]==1]) #Numero de infectados
+
+  if(i==1){ #Actualizacion de las probabilidades de contagio segun las caracteristicas de las personas
+  matriz[,6][matriz[,12]==1]<-matriz[,6][matriz[,12]==1]*T_Trabaja
+  matriz[,6][matriz[,12]==1 & matriz[,13]==1]<-matriz[,6][matriz[,12]==1 & matriz[,13]==1]*T_Transporte
+  matriz[,6][matriz[,12]==1 & matriz[,14]==2]<-matriz[,6][matriz[,12]==1 & matriz[,14]==2]*T_MedioR
+  matriz[,6][matriz[,12]==1 & matriz[,14]==3]<-matriz[,6][matriz[,12]==1 & matriz[,14]==3]*T_AltoR
+  }
+
+  if(Infectados==FASE1){
+    sum(matriz[,12])
+    Trabaja<-which(matriz[,12]==1)
+    Cambio<-sample(c(0,1),size=length(Trabaja),TRUE,prob=c(.05,.95)) 
+    NoTrabajaPox<-which(Cambio==0)
+    PY_t<-Trabaja[NoTrabajaPox]
+    matriz[PY_t,12]<-0
+    
+    matriz[PY_t,6]<-matriz[PY_t,6]/T_Trabaja[NoTrabajaPox]
+    matriz[,11]<-10
+    matriz[,6]<-matriz[,6]*.95
+  }
+  if(Infectados==FASE2){
+    sum(matriz[,12])
+    Trabaja<-which(matriz[,12]==1)
+    Cambio<-sample(c(0,1),size=length(Trabaja),TRUE,prob=c(.1,.9)) 
+    NoTrabajaPox<-which(Cambio==0)
+    PY_t<-Trabaja[NoTrabajaPox]
+    matriz[PY_t,12]<-0
+    matriz[PY_t,6]<-matriz[PY_t,6]/T_Trabaja[NoTrabajaPox]
+    
+    matriz[,11]<-5
+    matriz[,6]<-matriz[,6]*.90
+    ControlDeFronteras<-1
+  }
+  if(Infectados==FASE3){
+    sum(matriz[,12])
+    Trabaja<-which(matriz[,12]==1)
+    Cambio<-sample(c(0,1),size=length(Trabaja),TRUE,prob=c(.3,.7)) 
+    NoTrabajaPox<-which(Cambio==0)
+    PY_t<-Trabaja[NoTrabajaPox]
+    matriz[PY_t,12]<-0
+    matriz[PY_t,6]<-matriz[PY_t,6]/T_Trabaja[NoTrabajaPox]
+    
+    matriz[,11]<-1
+    matriz[,6]<-matriz[,6]*.80
+  }
+  if(ControlDeFronteras==0){
+    A<-sample(c(3,0), 1, prob=c(0.5,0.5)) #Probabilidad de .5 que el que llegue al mapa este infectado
+    PX<-sample(1:sqrt(Pob),1)
+    PY<-sample(1:sqrt(Pob),1)
+    if(A==3){
+      Mapa[PX,PY]<-A #Se generan mas infectados que llegan a cualquier lugar del mapa  
+    }
+  }
+  if(ControlDeFronteras==1){ 
+    A<-sample(c(3,0), 1, prob=c(0.1,0.9)) #Probabilidad de .1 que el que llegue al mapa este infectado
+    PX<-sample(1:sqrt(Pob),1)
+    PY<-sample(1:sqrt(Pob),1)
+    if(A==3 && matriz[PY,4]== 0 ){
+      Mapa[PX,PY]<-A #Se generan Menos infectados que llegan a cualquier lugar del mapa  
+      matriz[PY,4]<-6
+    }
+  }
+  return(matriz)
 }  
 #Luis David Dávila Torres
 #Carlos Antonio Espinosa Bravo
