@@ -23,8 +23,23 @@ Tablero <- matrix(0, nrow=10000,ncol=16)
 
 #####################################################
 FuncionGraficar <- function(matriz){
+    par(mfrow=c(1,1))
+  plot(which(M==0, arr.ind=TRUE),col="white", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==1, arr.ind=TRUE),col="red", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==2, arr.ind=TRUE),col="yellow", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==3, arr.ind=TRUE),col="gray50", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==4, arr.ind=TRUE),col="green", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==5, arr.ind=TRUE),col="black", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  title("REPRESENTACIÓN PANDEMIA")
+Sys.sleep(.1)
 
-    return()
+    return(M)
 }
 # Autores:
   #Maricela Alejandra Valero Fuentes
