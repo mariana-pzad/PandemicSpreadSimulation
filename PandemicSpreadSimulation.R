@@ -52,7 +52,33 @@ PonerEnCuarentena <- function(m) {
 
 ###################################################
 Contagio <- function(matriz){
-    
+    NF= 10#NUMERO DE FILAS
+  NC= 10#NUMERO DE COLUMNAS
+  pc= #PROBABILIDAD DE CONTAGIO
+  Matriz=matrix(NA,nrow=NF,ncol=NC)
+  
+#LLENANDO LA MATRIZ CON EL ESTADO DEL INDIVIDUO
+for(i in 1:NF){ #Filas
+  for (j in 1:NC){ #Columnas
+     Matriz[i,j]<-Tablero[i,4]
+  }
+}
+
+#BUSCANCO LOS SUSCEPTIBLES
+sus<-which(Matriz==0, arr.ind = TRUE)
+sus[which(sus[,]),]
+
+#VERIFICANDO EL ESTADO PARA VER SI SE CONTAGIA O NO
+for(i in 1:NF){ #Filas
+  for (j in 1:NC){ #Columnas
+    for(y in 1:length(sus)){
+      if(Matriz[i-1,])
+      
+      
+}
+
+}
+Contagio
     return(matriz)
 }
 #Autores:
