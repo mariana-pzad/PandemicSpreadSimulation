@@ -1,5 +1,5 @@
 #Inicializar la matriz
-Tablero <- matrix()
+Tablero <- matrix(0, nrow=10000,ncol=16)
 
 #Filas representan a cada individuo
 #Columna 1: Identificador del individuo (número:ID)
