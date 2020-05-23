@@ -209,7 +209,37 @@ return(matriz)
 ##########################################################
 
 RecuperacionMuerte <- function(matriz){
- 
+  m<-matriz
+   m[,15]<-.12 #Agregando a la matriz la prob de recuperación
+  #m[,15,drop=FALSE] #Revisando que se haya agregado bien 
+  for(i in 1:dim(m)[1]){
+    if(m[i,4]==1){ #Si el sujeto se encuentra infectado entra a esta clausula
+      periodoenfermedad<- 0
+      while(m[i,4]==1){ #Se crea un loop para ver cuantos dias se tarda en recuperarse
+        simulacion<-sample(1:100,1)
+        if (simulacion/100<=m[i,15]){
+          m[i,4]<-3
+          m[i,10]<-periodoenfermedad
+        }else{
+          periodoenfermedad<-periodoenfermedad+1
+        }
+      }
+    }else{
+      if(m[i,4]==4){  #Si el sujeto se encuentra latente entra a esta clausula
+        periodolatencia<- 0
+        while(m[i,4]==4){ #Se crea un loop para ver cuantos dias se tarda en recuperarse
+          simulacion<-sample(1:100,1)
+          if (simulacion/100<=m[i,15]){
+            m[i,4]<-3
+            m[i,9]<-periodolatencia
+          }else{
+            periodolatencia<-periodolatencia+1
+          }
+        }
+      }
+    }
+  }
+  return(m)
 return(matriz)
 }
 #Autores:
