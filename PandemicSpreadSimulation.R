@@ -46,7 +46,13 @@ Sys.sleep(.1)
   #Edwin Martin Romero Silva
   #Erick Hinojosa Aguirre
 
-######################################################
+###############################################################################################################################################################
+#Descripcion de la funcion
+# La función de Medidas de prevención nos permite modificar la probabilidad de cada individuo en base a la cantidad de infectados que existe en cada tiempo t, 
+# así como una variable que nos ayuda a ingresar medidas especiales según las medidas levantadas por el gobierno, 
+# es importante mencionar que la probabilidad se puede modificar según características de cada individuo como si esta trabajando o si usa transporte publico
+# y si su trabajo es de alto, medio o bajo riesgo. 
+
 MedidasPrev=function(i,Poblacion){
   FASE1<-20   # Numero de infectados para activar la fase
   FASE2<-200  # Numero de infectados para activar la fase
