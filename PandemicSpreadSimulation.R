@@ -125,6 +125,9 @@ MedidasPrev=function(i,Poblacion){
 #Alan Gerardo Garza Muro
 
 ###################################################
+# La función de cuarentena funciona tomando como parámetro el número de pruebas a realizar para detectar a 
+# individuos en periodo de latencia. Se toman aleatoriamente individuos de la población y los que estén en latencia
+# son puestos en cuarentena.
 cuarentena <- function(poblacion, no_pruebas)
     # Obtenemos los ids de los individuos con latencia obtenidos
     # aleatoriamente para ponerlos en cuarentena.
