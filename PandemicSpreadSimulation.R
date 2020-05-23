@@ -33,6 +33,7 @@ FuncionGraficar <- function(matriz){
 
 ######################################################
 MedidasPrev <- function(matriz){
+    
  FASE1<-20   # Numero de infectados para activar la fase
   FASE2<-200  # Numero de infectados para activar la fase
   FASE3<-4000 # Numero de infectados para activar la fase
