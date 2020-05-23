@@ -23,8 +23,23 @@ Tablero <- matrix(0, nrow=10000,ncol=16)
 
 #####################################################
 FuncionGraficar <- function(matriz){
+    par(mfrow=c(1,1))
+  plot(which(M==0, arr.ind=TRUE),col="white", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==1, arr.ind=TRUE),col="red", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==2, arr.ind=TRUE),col="yellow", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==3, arr.ind=TRUE),col="gray50", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==4, arr.ind=TRUE),col="green", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  plot(which(M==5, arr.ind=TRUE),col="black", pch=15,xlab="Años",xlim=c(0,21), ylim=c(0,21))
+  par(new=T)
+  title("REPRESENTACIÓN PANDEMIA")
+Sys.sleep(.1)
 
-    return()
+    return(M)
 }
 # Autores:
   #Maricela Alejandra Valero Fuentes
@@ -194,7 +209,33 @@ prueba <- function(poblacion, no_pruebas) {
 
 ###################################################
 Contagio <- function(matriz){
-    
+    NF= 10#NUMERO DE FILAS
+  NC= 10#NUMERO DE COLUMNAS
+  pc= #PROBABILIDAD DE CONTAGIO
+  Matriz=matrix(NA,nrow=NF,ncol=NC)
+  
+#LLENANDO LA MATRIZ CON EL ESTADO DEL INDIVIDUO
+for(i in 1:NF){ #Filas
+  for (j in 1:NC){ #Columnas
+     Matriz[i,j]<-Tablero[i,4]
+  }
+}
+
+#BUSCANCO LOS SUSCEPTIBLES
+sus<-which(Matriz==0, arr.ind = TRUE)
+sus[which(sus[,]),]
+
+#VERIFICANDO EL ESTADO PARA VER SI SE CONTAGIA O NO
+for(i in 1:NF){ #Filas
+  for (j in 1:NC){ #Columnas
+    for(y in 1:length(sus)){
+      if(Matriz[i-1,])
+      
+      
+}
+
+}
+Contagio
     return(matriz)
 }
 #Autores:
@@ -212,7 +253,37 @@ return(matriz)
 ##########################################################
 
 RecuperacionMuerte <- function(matriz){
- 
+  m<-matriz
+   m[,15]<-.12 #Agregando a la matriz la prob de recuperación
+  #m[,15,drop=FALSE] #Revisando que se haya agregado bien 
+  for(i in 1:dim(m)[1]){
+    if(m[i,4]==1){ #Si el sujeto se encuentra infectado entra a esta clausula
+      periodoenfermedad<- 0
+      while(m[i,4]==1){ #Se crea un loop para ver cuantos dias se tarda en recuperarse
+        simulacion<-sample(1:100,1)
+        if (simulacion/100<=m[i,15]){
+          m[i,4]<-3
+          m[i,10]<-periodoenfermedad
+        }else{
+          periodoenfermedad<-periodoenfermedad+1
+        }
+      }
+    }else{
+      if(m[i,4]==4){  #Si el sujeto se encuentra latente entra a esta clausula
+        periodolatencia<- 0
+        while(m[i,4]==4){ #Se crea un loop para ver cuantos dias se tarda en recuperarse
+          simulacion<-sample(1:100,1)
+          if (simulacion/100<=m[i,15]){
+            m[i,4]<-3
+            m[i,9]<-periodolatencia
+          }else{
+            periodolatencia<-periodolatencia+1
+          }
+        }
+      }
+    }
+  }
+  return(m)
 return(matriz)
 }
 #Autores:
