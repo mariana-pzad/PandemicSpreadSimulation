@@ -21,9 +21,23 @@ Tablero <- matrix()
 
 
 #####################################################
-FuncionGraficar <- function(matriz){
-
-    return()
+FuncionGraficar <- function(matriz){#La funcion graficar funciona tomando como parametro la matriz generada de las demas funciones y graficandola cada una de una color diferente
+par(mfrow=c(1,1))
+  plot(which(matriz==0, arr.ind=TRUE),col="white", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  par(new=T)#Se toman los valores de cada columna en base a la estructura dada por el profesor contra el numero de años.
+  plot(which(matriz==1, arr.ind=TRUE),col="red", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  par(new=T)
+  plot(which(matriz==2, arr.ind=TRUE),col="yellow", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  par(new=T)
+  plot(which(matriz==3, arr.ind=TRUE),col="gray50", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  par(new=T)
+  plot(which(matriz==4, arr.ind=TRUE),col="green", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  par(new=T)
+  plot(which(matriz==5, arr.ind=TRUE),col="black", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  par(new=T)
+  title("REPRESENTACIÓN PANDEMIA")
+Sys.sleep(.1)
+return(matriz)
 }
 # Autores:
   #Maricela Alejandra Valero Fuentes
