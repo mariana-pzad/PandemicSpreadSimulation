@@ -1,3 +1,5 @@
+source("helperfunctions_vacunation.R")
+
 #Inicializar la matriz
 Tablero <- matrix()
 
@@ -18,6 +20,8 @@ Tablero <- matrix()
 #Columna 14: Tipo de trabajo
 #Columna 15: Tasa de recuperación [probabilidad]
 #Columna 16: Cuarentena [binaria]
+#Columna 17: Tiempo tras vacunación
+#Columna 18: Tiempo recuperado
 
 
 #####################################################
@@ -178,9 +182,73 @@ Contagio <- function(matriz){
 #Ivan Rigoberto Ibarra Rodriguez
 #Fabiola Jasso Valadez
 #####################################################
+
+
 Vacunacion <- function(matriz){
+  # Recorreremos la matriz, por individuo
+  for(id in 1:(rownames(matriz)) {
+    # Obtenemos un vector por persona, con todos los parametros de la columna de la matriz
+    atributos_persona <- matriz[,id]
+    # Obtenemos el estado de la persona
+    estado_persona <- which(atributos_persona["estado"] == 1)
+    edad_persona <- atributos_persona["edad"]
+    tiempo_tras_vacunacion <- atributos_persona["tiempo_tras_vacunacion"]
+    tiempo_recuperado <- atributos_persona["tiempo_recuperado"]
+
+    ################################################### Susceptible
+    if (estado_persona == 0)
+    {
+      # Si se vacuna, calculamos ahora la efectividad
+      if (calcular_vacunacion_susceptible(edad_persona))
+      {
+        # Vacunado, se cambia el estado de la persona a vacunado
+        matriz["estado", id] <- 2
+      }
+    }
+    ################################################### Enfermo
+    else if (estado_persona == 1)
+    {
+        # Enfermos NO se vacunan
+    }
+    ################################################### vacunado
+    else if (estado_persona == 2)
+    {
+      # Despues del año se vuelve a vacunar
+      if (tiempo_tras_vacunacion>=365)
+      {
+          se_vuelve_a_vacunar <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.3,0.7))
+
+          # Si no se vacuna, pasa nuevamente a ser susceptible
+          if (se_vuelve_a_vacunar != 1)
+          {
+            matriz["estado", id] <- 0
+          }
+      }
+    }
+    ################################################### Recuperado
+    else if (estado_persona == 3)
+    {
+      # A los 90 dias de recuperado se puede vacunar
+      if (tiempo_recuperado>=90)
+      {
+          se_vacuna <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.6,0.4))
+
+          # Si se vacuna, ahora pasa a estado vacunado
+          if (se_vacuna)
+          {
+            matriz["estado", id] <- 2
+          }
+      }
+    }
+    else{
+      # Cualquier otro estado, no se evalúa
+    }
+
+  }
 return(matriz)
 }
+
+
 # Autores:
 # Gerardo Perez Arriega
 # Mariana Perez Arredondo
