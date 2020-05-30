@@ -15,13 +15,14 @@ Tablero <- matrix()
 #Columna 9: Periodo de latencia [días]
 #Columna 10: Periodo de enfermedad [días]
 #Columna 11: Radio de movilidad
-#Columna 12: Trabaja
-#Columna 13: Tipo de traslado
-#Columna 14: Tipo de trabajo
+#Columna 12: Trabaja [0:No,1:Si]
+#Columna 13: TipoTraslado [0:CochePropio, 1:Transporte publico]
+#Columna 14: TipodeTrabajo [0:Notrabja, 1:BajoRiesgo,2:MedioRiesgo,3:AltoRiesgo]
 #Columna 15: Tasa de recuperación [probabilidad]
 #Columna 16: Cuarentena [binaria]
 #Columna 17: Tiempo tras vacunación
 #Columna 18: Tiempo recuperado
+############## Ciclo Principal ############################
 
 
 #####################################################
@@ -86,36 +87,25 @@ MedidasPrev=function(i,Poblacion){
   Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]*T_MedioR
   Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]*T_AltoR
   }
-
     return(matriz)
 }  
-#Luis David Dávila Torres
-#Carlos Antonio Espinosa Bravo
-#Alan Gerardo Garza Muro
+        } else {
+          no_pruebas = no_pruebas + 1;
+        }
+        individuos_considerados <- c(individuos_considerados, id);
+    }
+    return(individuos_en_latencia);
+}
+# Autores:
+# Victor Francisco Carrizales Castor
+# Natalia ALejandra García Armijo
+# Fabián Gandarilla López
 
 ###################################################
-# La función de cuarentena funciona tomando como parámetro el número de pruebas a realizar para detectar a 
-# individuos en periodo de latencia. Se toman aleatoriamente individuos de la población y los que estén en latencia
-# son puestos en cuarentena.
-cuarentena <- function(poblacion, no_pruebas)
-    # Obtenemos los ids de los individuos con latencia obtenidos
-    # aleatoriamente para ponerlos en cuarentena.
-    filas <- prueba(poblacion, no_pruebas);
-    # Iteramos sobre todos los individuos en latencia para ponerlos en cuarentena.
-    for (fila in filas) {
-        # Lo ponemos en cuarentena.
-        poblacion[fila,16] <- 1;
-        # Iniciamos el contador de cuarentena en 0.
-        poblacion[fila,17] <- 0;
-    }
-    return(poblacion);
-}
 
-salir_cuarentena <- function(poblacion, id) {
-    # La columna que contiene los ids es la primer columna.
     columna_ids <- poblacion[,1];
     # Obtenemos el registro de este individuo.
-    fila <- match(c(id), columna_ids);
+    fila <- madim(matriz)[]a_ids);
     # Lo sacamos de cuarentena.
     poblacion[fila,16] <- 0;
     # Reiniciamos su contador de cuarentena
@@ -148,9 +138,11 @@ prueba <- function(poblacion, no_pruebas) {
             no_pruebas = no_pruebas + 1;
             # Continuamos a la siguiente iteración.
             next;
-        } else {
-            # Consideramos a este individuo para ser puesto en cuarentena
+        }  else if (poblacion[fila,4] == 4 || poblacion[fila,4] == 1]){
+            # Si este individuo esta latente o infectado lo consideramos para cuarentena
             individuos_en_latencia <- c(individuos_en_latencia, fila);
+        } else {
+          no_pruebas = no_pruebas + 1;
         }
         individuos_considerados <- c(individuos_considerados, id);
     }
@@ -163,41 +155,68 @@ prueba <- function(poblacion, no_pruebas) {
 
 ###################################################
 Contagio <- function(matriz){
-    
-    return(matriz)
+NF<-length(Matriz[,1])#NUMERO DE FILAS
+NC<-length(Matriz[1,])#NUMERO DE COLUMNAS
+
+#TOMANDO EN CUENTA LOS LATENTES
+for(i in 2:NF-1){ #Filas
+  for (j in 2:NC-1){ #Columnas
+    if(Matriz[i,j]==0){
+      if(Matriz[i-1,j]==4){
+        Matriz[i,j]=4}
+         else if (Matriz[i+1,j]==4){
+             Matriz[i,j]=4}
+           else if (Matriz[i,j-1]==4){
+             Matriz[i,j]=4}
+             else if (Matriz[i,j+1]==4){
+               Matriz[i,j]=4
+       }
+    }
+  }
 }
+
+#TOMANDO EN CUENTA LOS INFECTADOS
+for(i in 2:NF-1){ #Filas
+  for (j in 2:NC-1){ #Columnas
+    if(Matriz[i,j]==0){
+      if(Matriz[i-1,j]==1){
+        Matriz[i,j]=4}
+      else if (Matriz[i+1,j]==1){
+        Matriz[i,j]=4}
+      else if (Matriz[i,j-1]==1){
+        Matriz[i,j]=4}
+      else if (Matriz[i,j+1]==1){
+        Matriz[i,j]=4
+      }
+    }
+  }
+}
+
+return(Matriz);
 #Autores:
 #Araceli Montserrat Rodriguez Crespo
 #Ivan Rigoberto Ibarra Rodriguez
 #Fabiola Jasso Valadez
 #####################################################
 
-
 Vacunacion <- function(matriz){
   # Recorreremos la matriz, por individuo
-  for(id in 1:(rownames(matriz)) {
-    # Obtenemos un vector por persona, con todos los parametros de la columna de la matriz
-    atributos_persona <- matriz[,id]
+  for(i in 1:dim(matriz)[1]) {
     # Obtenemos el estado de la persona
-    estado_persona <- which(atributos_persona["estado"] == 1)
-    edad_persona <- atributos_persona["edad"]
-    tiempo_tras_vacunacion <- atributos_persona["tiempo_tras_vacunacion"]
-    tiempo_recuperado <- atributos_persona["tiempo_recuperado"]
-
+    estado_persona <- matriz[i,4]
+    edad_persona <- matriz[i,5]
+    tiempo_tras_vacunacion <- matriz[i,17]
+    tiempo_recuperado <- matriz[i,18]
+    
     ################################################### Susceptible
     if (estado_persona == 0)
     {
       # Si se vacuna, calculamos ahora la efectividad
-      if (calcular_vacunacion_susceptible(edad_persona))
+      if (calcular_vacunacion_susceptible(edad_persona)==1)
       {
         # Vacunado, se cambia el estado de la persona a vacunado
-        matriz["estado", id] <- 2
+        estado_persona <- 2
       }
-    }
-    ################################################### Enfermo
-    else if (estado_persona == 1)
-    {
-        # Enfermos NO se vacunan
     }
     ################################################### vacunado
     else if (estado_persona == 2)
@@ -205,13 +224,13 @@ Vacunacion <- function(matriz){
       # Despues del año se vuelve a vacunar
       if (tiempo_tras_vacunacion>=365)
       {
-          se_vuelve_a_vacunar <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.3,0.7))
-
-          # Si no se vacuna, pasa nuevamente a ser susceptible
-          if (se_vuelve_a_vacunar != 1)
-          {
-            matriz["estado", id] <- 0
-          }
+        se_vuelve_a_vacunar <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.3,0.7))
+        
+        # Si no se vacuna, pasa nuevamente a ser susceptible
+        if (se_vuelve_a_vacunar != 1)
+        {
+          estado_persona <- 0
+        }
       }
     }
     ################################################### Recuperado
@@ -220,24 +239,44 @@ Vacunacion <- function(matriz){
       # A los 90 dias de recuperado se puede vacunar
       if (tiempo_recuperado>=90)
       {
-          se_vacuna <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.6,0.4))
-
-          # Si se vacuna, ahora pasa a estado vacunado
-          if (se_vacuna)
-          {
-            matriz["estado", id] <- 2
-          }
+        se_vacuna <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.6,0.4))
+        
+        # Si se vacuna, ahora pasa a estar vacunado
+        if (se_vacuna==1)
+        {
+          estado_persona <- 2
+        }
       }
     }
-    else{
-      # Cualquier otro estado, no se evalúa
-    }
-
+    
   }
-return(matriz)
+  return(matriz)
 }
-
-
+Pob=dim(Matriz)[1] 
+Efi=0.5
+Time_Vac=0
+Time_Rec=c()
+Vacunacion <- function(M){
+  colnames(M)[c(4,8,20:22)]=c("Estado","Prob","Anti","TimeVac","TimeRec")
+  attach(M)
+  Vac_Pos=which(Anti==0)
+  M[Vac_Pos,8][M[Vac_Pos,c(17:18)]> quantile(M[Vac_Pos,c(17:18)],0.95)]=0.95
+  M[Vac_Pos,8][M[Vac_Pos,c(17:18)]< quantile(M[Vac_Pos,c(17:18)],0.05)]=0.05
+  M[Prob>runif(length(Vac_Pos), min = 0, max = 1)&(Estado==0 || Estado ==3),4]=2
+  Vac_Again=which(TimeVac>=365)
+  Estado[Vac_Again]=sample(c(2,6), length(Vac_Again), replace = T, prob = c(1-Efi,Efi))
+  Time_Vac[Vac_Again][Estado==2]=0
+  Estado[Estado==2][-Vac_Again]=sample(c(2,6), length(Vac_Again), replace = T, prob = c(1-Efi,Efi))
+  Vac_Pos_Rec=which(TimeRec>=90 & Anti==0)
+  Estado[Vac_Pos_Rec]=sample(c(2,3), length(Vac_Pos_Rec), replace = T, prob = c(0.4,0.6))
+  Time_Vac[Vac_Pos_Rec][Estado==2]=0
+  Vac_Hoy=which(TimeVac>=365 || Time_Rec>=90)
+  Time_Vac[ TimeVac<365 & TimeVac>0]=Time_Vac[Estado==2 & TimeVac<365]+1
+  Inm_Hoy=length(Time_Vac[Vac_Hoy][Estado==6])
+  print("El número de personas inmunizadas por la vacuna el día de hoy es de:")
+  print(Inm_Hoy)
+  return(M)
+}
 # Autores:
 # Gerardo Perez Arriega
 # Mariana Perez Arredondo
