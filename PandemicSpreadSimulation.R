@@ -48,10 +48,6 @@ return(matriz)
   #Edwin Martin Romero Silva
   #Erick Hinojosa Aguirre
 
-<<<<<<< HEAD
-######################################################
-MedidasPrev <- function(matriz){
-=======
 ###############################################################################################################################################################
 #Descripcion de la funcion
 # La función de Medidas de prevención nos permite modificar la probabilidad de cada individuo en base a la cantidad de infectados que existe en cada tiempo t, 
@@ -90,7 +86,6 @@ MedidasPrev=function(i,Poblacion){
   Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]*T_MedioR
   Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]*T_AltoR
   }
->>>>>>> 930e3ee2a3bf14449243b88e386233026bf0c176
 
     return(matriz)
 }  
@@ -99,11 +94,6 @@ MedidasPrev=function(i,Poblacion){
 #Alan Gerardo Garza Muro
 
 ###################################################
-<<<<<<< HEAD
-PonerEnCuarentena <- function(m) {
-    
-    return(matriz);
-=======
 # La función de cuarentena funciona tomando como parámetro el número de pruebas a realizar para detectar a 
 # individuos en periodo de latencia. Se toman aleatoriamente individuos de la población y los que estén en latencia
 # son puestos en cuarentena.
@@ -165,7 +155,6 @@ prueba <- function(poblacion, no_pruebas) {
         individuos_considerados <- c(individuos_considerados, id);
     }
     return(individuos_en_latencia);
->>>>>>> 930e3ee2a3bf14449243b88e386233026bf0c176
 }
 # Autores:
 # Victor Francisco Carrizales Castor
