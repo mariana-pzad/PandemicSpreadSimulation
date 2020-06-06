@@ -22,6 +22,7 @@ Tablero <- matrix()
 #Columna 16: Cuarentena [binaria]
 #Columna 17: Tiempo tras vacunación
 #Columna 18: Tiempo recuperado
+#Columna 19: Esperado periodo latencia
 ############## Ciclo Principal ############################
 
 
@@ -250,32 +251,26 @@ RecuperacionMuerte <- function(m){
   #m[,15,drop=FALSE] #Revisando que se haya agregado bien 
   for(i in 1:dim(m)[1]){
     if(m[i,4]==1){ #Si el sujeto se encuentra infectado entra a esta clausula
-      periodoenfermedad<- 0
-      while(m[i,4]==1){ #Se crea un loop para ver cuantos dias se tarda en recuperarse
-        simulacion<-sample(1:100,1)
-        if (simulacion/100<=m[i,15]){
-          m[i,4]<-3
-          m[i,10]<-periodoenfermedad
-        }else{
-          periodoenfermedad<-periodoenfermedad+1
+      simulacion<-sample(1:100,1) # Se genera una probabilidad para que le sujeto se cure
+      m[i,10]<-mm[i,10]+1 #Se agrega un dia a la cuenta del periodo de enfermedad
+      if (simulacion/100<=m[i,15]){ #¿Se curara?
+        m[i,4]<-3
         }
-      }
     }else{
-      if(m[i,4]==4){  #Si el sujeto se encuentra latente entra a esta clausula
-        periodolatencia<- 0
+      if(m[i,4]==4 and m[i,19]==0){  #Si el sujeto se encuentra latente entra a esta clausula
+        esperadoperiodolatencia<- 0
         while(m[i,4]==4){ #Se crea un loop para ver cuantos dias se tarda en recuperarse
           simulacion<-sample(1:100,1)
           if (simulacion/100<=m[i,15]){
-            m[i,4]<-3
-            m[i,9]<-periodolatencia
+            m[i,19]<-esperadoperiodolatencia
           }else{
-            periodolatencia<-periodolatencia+1
+            esperadoperiodolatencia<-esperadoperiodolatencia+1
           }
         }
       }
     }
-  }
-return(matriz)
+    }
+return(m) #Es muy importante que la matriz que este valor regresa se aplique a alguna variable dentro del código general 
 }
 #Autores:
 #Enrique Martinez
@@ -283,25 +278,23 @@ return(matriz)
 
 #####################################################
 Latencia<-function(Matriz){
-
-    for (i in 1:length(Matriz$latencia)) {
-      if(Matriz$estado[i]==4){
-        if(Matriz$latencia[i]>=0&Matriz$latencia[i]<=6){
-          Matriz$latencia[i]<-Matriz$latencia[i]+1
+    for (i in 1:in 1:dim(Matriz)[1]) {
+      if(Matriz[i,4]==4){
+        if(Matriz[i,9]>=0&Matriz[i,9]<Matriz[i,19]){
+          Matriz[i,9]<-Matriz[i,9]+1
       }
-       if(Matriz$latencia[i]>6){
-         Matriz$estado[i]<-sample(c(1,3),1,prob=c(2,8))
+       if(Matriz[i,9]>=Matriz[i,19]){
+         Matriz[i,9]<-sample(c(1,3),1,prob=c(2,8))
        } 
     }
-  
   }
-  Matriz
+  return(Matriz)
   }
 #La funcion latencia nos sirve para llevar a cabo un conteo del tiempo 
 #que la persona estara en periodo de latencia, en cada iteracion se 
 # agrega 1 y cuando se cumpla el periodo variable pasa a ser 
-#recuperado(1) o infectado(3) dependiendo la probabilidad que tiene 
-#cada uno, en este caso 80% para infectado y 20% para recuperado 
+#recuperado(3) o infectado(1) dependiendo la probabilidad que tiene 
+#cada uno, en este caso 80% para recuperado y 20% para infectado 
 #Autores:
   #Luis Alberto Guerrero Zuñiga
   #Alan Fernando Mejía Aranda
