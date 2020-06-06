@@ -1,31 +1,54 @@
 source("helperfunctions_vacunation.R")
-
+Pob <- 10000
 #Inicializar la matriz
-Tablero <- matrix()
-
-#Filas representan a cada individuo
-#Columna 1: Identificador del individuo (nÃºmero:ID)
+EstadoDelSistema <- matrix(0, nrow=Pob, ncol=22)
+EstadoDelSistema[,1] <- 1:Pob #Columna 1: Identificador del individuo (nÃºmero:ID)
+for(j in 1:sqrt(Pob)){ #CICLO PARA LLENAR EL TABLERO
+  EstadoDelSistema[,2][EstadoDelSistema[,1] <= (j*sqrt(Pob)) & EstadoDelSistema[,1] > ((j-1)*sqrt(Pob)) ] <- j
+  EstadoDelSistema[,3] <- c(1:sqrt(Pob))
+}
 #Columna 2: Posicion dentro del Tablero (fila)
 #Columna 3: Posicion dentro del Tablero (columna)
+EstadoDelSistema[sample(1:10000,1),4] <- 1
 #Columna 4: Estado del individuo [0:susceptible, 1:enfermo, 2:vacunado, 3:recuperado, 4:latente, 5:muerto]
+EstadoDelSistema[,5] <- abs(round(rnorm(10000,14,10)))
 #Columna 5: Edad [aÃ±os]
+EstadoDelSistema[,6] <- 0.5
 #Columna 6: Tasa de contagio [probabilidad]
+EstadoDelSistema[,7] <- 0.12
 #Columna 7: Tasa de letalidad [probabilidad]
 #Columna 8: Tasa de vacunaciÃ³n [probabilidad]
-#Columna 9: Periodo de latencia [dÃ?as]
-#Columna 10: Periodo de enfermedad [dÃ?as]
-#Columna 11: Radio de movilidad
+#Columna 9: Periodo de latencia [dï¿½?as]
+#Columna 10: Periodo de enfermedad [dï¿½?as]
+EstadoDelSistema[,11] <- 30
+#Columna 11: Radio de movilidad []
+EstadoDelSistema[,13] <- 1
+L<-length(EstadoDelSistema[,5][EstadoDelSistema[,5]>=18 & EstadoDelSistema[,5]<=65])
+EstadoDelSistema[,12][EstadoDelSistema[,5]>=18 & EstadoDelSistema[,5]<=65]<-sample(c(0,1),size=L,TRUE,prob=c(.6,.4)) #De los mayores de 18 asigna quienes trabajan y quienes no
+LC<-length(EstadoDelSistema[,5][EstadoDelSistema[,5]>=18 & EstadoDelSistema[,5]<=85])
+EstadoDelSistema[,13][EstadoDelSistema[,5]>=18 & EstadoDelSistema[,5]<=85]<-sample(c(0,1),size=LC,TRUE,prob=c(.4,.6)) #De los mayores de 18 que conducen
+LT<-length(EstadoDelSistema[,12][EstadoDelSistema[,12]==1])
+EstadoDelSistema[,14][EstadoDelSistema[,12]==1]<-sample(c(1,2,3),size=LT,TRUE,prob=c(0.3,0.6,0.1)) #De los que trabajan que tipo de riesgo
 #Columna 12: Trabaja [0:No,1:Si]
 #Columna 13: TipoTraslado [0:CochePropio, 1:Transporte publico]
 #Columna 14: TipodeTrabajo [0:Notrabja, 1:BajoRiesgo,2:MedioRiesgo,3:AltoRiesgo]
+EstadoDelSistema[,15] <- 0.12
 #Columna 15: Tasa de recuperaciÃ³n [probabilidad]
 #Columna 16: Cuarentena [binaria]
+#Columna 23: Contador del periodo de cuarentena [dias]
 #Columna 17: Tiempo tras vacunaciÃ³n
-#Columna 18: Tiempo recuperado
-#Columna 19: Esperado periodo latencia
+#Columna 18: Tiempo recuperado [dias]
+Coordenadas<-CorTrabajador(LT) # Numero de aleatorios dentro del centro
+EstadoDelSistema[,19]<-rep(0)
+EstadoDelSistema[,19][EstadoDelSistema[,12]==1]<-Coordenadas[,3]  #Posicion de trabajo en Y Fila
+EstadoDelSistema[,20]<-rep(0)
+EstadoDelSistema[,20][EstadoDelSistema[,12]==1]<-Coordenadas[,2] #Posicion de trabajo en XColumna
+EstadoDelSistema[,21][EstadoDelSistema[,12]!=1]<-rep(0) #Posicion de trabajo en XColumna
+EstadoDelSistema[,21][EstadoDelSistema[,12]==1]<-Coordenadas[,1] #Id del trabajo
 #Columna 19: Lugar de trabajo coordenada Y (fila)
 #Columna 20: Lugar de trabajo coordenada X (columna)
 #Columna 21: Id_LugarTrabajo
+#Columna 22: Esperado periodo latencia
 
 
 ############## Ciclo Principal ############################
@@ -251,8 +274,8 @@ Contagio <- function(Matriz){
 #####################################################
 #Descripcion de la funcion
 # La funciÃ³n de Medidas de prevenciÃ³n nos permite modificar la probabilidad de cada individuo en base a la cantidad de infectados que existe en cada tiempo t, 
-# asÃ? como una variable que nos ayuda a ingresar medidas especiales segÃºn las medidas levantadas por el gobierno, 
-# es importante mencionar que la probabilidad se puede modificar segÃºn caracterÃ?sticas de cada individuo como si esta trabajando o si usa transporte publico
+# asï¿½? como una variable que nos ayuda a ingresar medidas especiales segÃºn las medidas levantadas por el gobierno, 
+# es importante mencionar que la probabilidad se puede modificar segÃºn caracterï¿½?sticas de cada individuo como si esta trabajando o si usa transporte publico
 # y si su trabajo es de alto, medio o bajo riesgo. 
 
 MedidasPrecaucion=function(i,Poblacion){
@@ -351,7 +374,7 @@ MedidasPrecaucion=function(i,Poblacion){
   return(Poblacion)
 }
 
-#Luis David Dávila Torres
+#Luis David Dï¿½vila Torres
 #Carlos Antonio Espinosa Bravo
 #Alan Gerardo Garza Muro
 
@@ -395,7 +418,7 @@ CorTrabajador=function(N){
     }
   }
   return(Coorde)
-}#Luis David Dávila Torres
+}#Luis David Dï¿½vila Torres
 
 ContagioTrabajo=function(Poblacion,j){
   B2=0
@@ -413,7 +436,7 @@ ContagioTrabajo=function(Poblacion,j){
     #Matriz[j,9]<-Matriz[j,9]+1 #Empieza el periodo de latencia
   }
   return(Poblacion)
-}#Luis David Dávila Torres
+}#Luis David Dï¿½vila Torres
 
 GraficaTrabajo<-function(Poblacion){ #ejemplo de grafico de hogar a trabajo
   plot(Poblacion[,2],Poblacion[,3])
@@ -427,7 +450,7 @@ GraficaTrabajo<-function(Poblacion){ #ejemplo de grafico de hogar a trabajo
     lines(ex,ey,col=k)
     points(Poblacion[Trabaja[k],3],Poblacion[Trabaja[k],2],col="gray",lwd=7)
   }
-}#Luis David Dávila Torres
+}#Luis David Dï¿½vila Torres
 
 
 
@@ -449,7 +472,7 @@ prueba <- function(poblacion, no_pruebas) {
     individuos_considerados <- c();
     # Lista para guardar los individuos que pondremos en cuarentena.
     individuos_en_latencia <- c();
-    # El total de individuos en la poblaciÃ³n es necesario como lÃ?mite para la 
+    # El total de individuos en la poblaciÃ³n es necesario como lï¿½?mite para la 
     # generaciÃ³n de nÃºmero aleatorios.
     total_individuos <- dim(poblacion)[0];
     # La columna que contiene los ids es la primer columna.
@@ -480,12 +503,12 @@ prueba <- function(poblacion, no_pruebas) {
 }
 # Autores:
 # Victor Francisco Carrizales Castor
-# Natalia ALejandra GarcÃ?a Armijo
+# Natalia ALejandra Garcï¿½?a Armijo
 # FabiÃ¡n Gandarilla LÃ³pez
 
 # Autores:
 # Victor Francisco Carrizales Castor
-# Natalia ALejandra GarcÃ?a Armijo
+# Natalia ALejandra Garcï¿½?a Armijo
 # FabiÃ¡n Gandarilla LÃ³pez
 #####################################################
 Vacunacion <- function(matriz){
@@ -519,7 +542,7 @@ Vacunacion <- function(matriz){
       ################################################### Vacunado
       else if (estado_persona == 2)
       {
-        # Despues del año se vuelve a vacunar
+        # Despues del aï¿½o se vuelve a vacunar
         if (tiempo_tras_vacunacion>=365)
         {
           prob_vacuna<-0.7
@@ -577,16 +600,16 @@ Vacunacion <- function(matriz){
       }
     } 
   }
-  ################################################### Inmunidad del rebaño
+  ################################################### Inmunidad del rebaï¿½o
   raiz<-dim(matriz[1])^(0.5)
   tablero_inmune<-matrix(0,ncol=raiz,nrow=ncol=raiz) #Vecindario donde cada celda me indica si la persona es inmune o no
-  pos_inmunes<-which(matriz[,4]==6) #Posición de personas inmunes
+  pos_inmunes<-which(matriz[,4]==6) #Posiciï¿½n de personas inmunes
   filas_inmunes<-rep(0,raiz) #Filas con personas inmunes en el vecindario 
   filas_inmunes[pos_inmunes<=raiz]<-1 #Las primeras personas se hallan en la fila 1 
   filas_inmunes[pos_inmunes>raiz]<-1+floor(pos_inmunes/raiz) #A partir de la persona raiz+1 , estaremos en la fila 2 en delante
   columnas_inmunes<-rep(0,raiz) #Columnas con personas inmunes en el vecindario
-  columnas_inmunes[pos_inmunes<=raiz]<-pos_inmunes #Las primeras raiz personas estarán en el número de columna indicado por su posición en la columna de estados
-  columnas_inmunes[pos_inmunes>raiz]<-pos_inmunes-raiz*(floor(pos_inmunes/raiz)) #A partir de la persona raiz+1, tenemos que restarle a la posición en la columna de estados
+  columnas_inmunes[pos_inmunes<=raiz]<-pos_inmunes #Las primeras raiz personas estarï¿½n en el nï¿½mero de columna indicado por su posiciï¿½n en la columna de estados
+  columnas_inmunes[pos_inmunes>raiz]<-pos_inmunes-raiz*(floor(pos_inmunes/raiz)) #A partir de la persona raiz+1, tenemos que restarle a la posiciï¿½n en la columna de estados
   tablero_inmune[filas_inmunes,columnas_inmunes]<-1 #Las filas y columnas obtenidas corresponden a personas inmunes
   if(fila_persona>1 & fila_persona<raiz ){
     if (columna_persona>1 & columna_persona<raiz){
@@ -728,5 +751,5 @@ Latencia<-function(Matriz){
 #cada uno, en este caso 80% para recuperado y 20% para infectado 
 #Autores:
   #Luis Alberto Guerrero ZuÃ±iga
-  #Alan Fernando MejÃ?a Aranda
+  #Alan Fernando Mejï¿½?a Aranda
   #Jose Armando Jara Rodriguez 
