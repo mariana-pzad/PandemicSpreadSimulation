@@ -1,4 +1,3 @@
-helperfunctions_vacunation.R
 ##########################################################################
 # Funciones auxiliares para calcular transicion de estados, por vacunacion
 ##########################################################################
@@ -25,23 +24,22 @@ calcular_vacunacion_susceptible <- function(edad)
     {
         # se vacuna si o si, solo debemos verificar si se aplica bien (si hubo buen manejo)
         vacuna_bien_aplicada <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.01,0.99))
-        if (vacuna_bien_aplicada)
+        if (vacuna_bien_aplicada == 1)
         {
             se_vacuna <- 1
         }
     } else 
     {
         # solo se vacunan si tienen problemas metabolicos
-        if (problemas_metabolicos())
+        if (problemas_metabolicos() == 1)
         {
             # Si se vacuna, y ahora verificamos que la vacuna sea bien aplicada (si hubo buen manejo)
             vacuna_bien_aplicada <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.01,0.99))
-            if (vacuna_bien_aplicada)
+            if (vacuna_bien_aplicada == 1)
             {
                 se_vacuna <- 1
             }
         }
-        
     }
     return(se_vacuna)
 }

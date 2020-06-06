@@ -522,24 +522,21 @@ prueba <- function(poblacion, no_pruebas) {
 # Fabián Gandarilla López
 
 #####################################################
+
 Vacunacion <- function(matriz){
   # Recorreremos la matriz, por individuo
   for(persona in 1:dim(matriz)[1]) {
-    
-    
-    
     # Obtenemos el estado de la persona
-    anti_vacunas<-matriz[persona,23] #Valor de {0,1} que indica si la persona pertenece al movimiento antivacunas
+    anti_vacunas<- sample(c(0,1), size=1, replace=TRUE, prob=c(0.95,0.05)) #Valor de {0,1} que indica si la persona pertenece al movimiento antivacunas
     estado_persona <- matriz[persona,4]
     edad_persona <- matriz[persona,5]
     tiempo_tras_vacunacion <- matriz[persona,17]
     tiempo_recuperado <- matriz[persona,18]
     prob_vacuna<-matriz[persona,8]
-    salud_persona<-matriz[persona,24] #Valor entre 0 y 100 indicador del estado de salud de la persona
     fila_persona<-matriz[persona,2]
     columna_persona<-matriz[persona,3]
     ################################################### Susceptible
-    if (anti_vacunas!=0){
+    if (anti_vacunas == 0){
       if (estado_persona == 0)
       {
         # Si se vacuna, calculamos ahora la efectividad
@@ -559,8 +556,6 @@ Vacunacion <- function(matriz){
           prob_vacuna<-0.7
           se_vuelve_a_vacunar <- sample(c(0,1), size=1, prob=c(1-prob_vacuna,prob_vacuna))
           
-          
-          
           # Si no se vacuna, pasa nuevamente a ser susceptible
           if (se_vuelve_a_vacunar == 0)
           {
@@ -577,9 +572,7 @@ Vacunacion <- function(matriz){
         {
           prob_vacuna=0.4
           se_vacuna <- sample(c(0,1), size=1, prob=c(1-prob_vacuna,prob_vacuna))
-          
-          
-          
+
           # Si se vacuna, ahora pasa a estado vacunado
           if (se_vacuna == 1)
           {
@@ -590,120 +583,10 @@ Vacunacion <- function(matriz){
         }
       }
     }
-    ################################################### Inmunizado
-    if (estado_persona==2)
-    {
-      if(salud_persona>quantile(matriz[,24],0.95)
-         {
-           prob_inmune<-0.95
-      }
-      else if(salud_persona<quantile(matriz[,24],0.05)
-              {
-                prob_inmune<-0.05
-      }
-      else{
-        prob_inmune<-runif(n=1,min=0.05,max=0.95)
-      }
-      inmune<-sample(c(0,1),size=1,prob=c(1-prob_inmune,prob_inmune))
-      if(inmune==1){
-        estado_persona<-6
-        tiempo_tras_vacunacion<-0
-      }
-    } 
   }
-  ################################################### Inmunidad del reba�o
-  raiz<-dim(matriz[1])^(0.5)
-  tablero_inmune<-matrix(0,ncol=raiz,nrow=ncol=raiz) #Vecindario donde cada celda me indica si la persona es inmune o no
-  pos_inmunes<-which(matriz[,4]==6) #Posici�n de personas inmunes
-  filas_inmunes<-rep(0,raiz) #Filas con personas inmunes en el vecindario 
-  filas_inmunes[pos_inmunes<=raiz]<-1 #Las primeras personas se hallan en la fila 1 
-  filas_inmunes[pos_inmunes>raiz]<-1+floor(pos_inmunes/raiz) #A partir de la persona raiz+1 , estaremos en la fila 2 en delante
-  columnas_inmunes<-rep(0,raiz) #Columnas con personas inmunes en el vecindario
-  columnas_inmunes[pos_inmunes<=raiz]<-pos_inmunes #Las primeras raiz personas estar�n en el n�mero de columna indicado por su posici�n en la columna de estados
-  columnas_inmunes[pos_inmunes>raiz]<-pos_inmunes-raiz*(floor(pos_inmunes/raiz)) #A partir de la persona raiz+1, tenemos que restarle a la posici�n en la columna de estados
-  tablero_inmune[filas_inmunes,columnas_inmunes]<-1 #Las filas y columnas obtenidas corresponden a personas inmunes
-  if(fila_persona>1 & fila_persona<raiz ){
-    if (columna_persona>1 & columna_persona<raiz){
-      estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona-1):(columna_persona+1)]
-      estados_vecinos<-estados[-fila_persona,-columna_persona]
-      vecinos_inmunes<-sum(estados_vecinos)
-      if(vecinos_inmunes==8){
-        estado_persona<-6
-      }
-    } 
-  }
-  else if (fila_persona>1 & fila_persona<raiz){
-    if (columna_persona==1)
-    {
-      estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona):(columna_persona+1)]
-      estados_vecinos<-estados[-fila_persona,-columna_persona]
-      vecinos_inmunes<-sum(estados_vecinos)
-      if(vecinos_inmunes==5){
-        estado_persona<-6
-      }
-    }
-    else{
-      estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona-1):(columna_persona)]
-      estados_vecinos<-estados[-fila_persona,-columna_persona]
-      vecinos_inmunes<-sum(estados_vecinos)
-      if(vecinos_inmunes==5){
-        estado_persona<-6
-      }
-    }
-  }
-  
-  
-  
-  else if (fila_persona==1)
-  {
-    if (columna_persona==1)
-    {
-      estados<-tablero_inmune[(fila_persona):(fila_persona+1),(columna_persona):(columna_persona+1)]
-      estados_vecinos<-estados[-fila_persona,-columna_persona]
-      vecinos_inmunes<-sum(estados_vecinos)
-      if(vecinos_inmunes==3){
-        estado_persona<-6
-      }
-    }
-    else{
-      estados<-tablero_inmune[(fila_persona):(fila_persona+1),(columna_persona-1):(columna_persona)]
-      estados_vecinos<-estados[-fila_persona,-columna_persona]
-      vecinos_inmunes<-sum(estados_vecinos)
-      if(vecinos_inmunes==3){
-        estado_persona<-6
-      }
-    }
-  }
-  
-  
-  
-  else
-  {
-    if (columna_persona==1)
-    {
-      estados<-tablero_inmune[(fila_persona-1):(fila_persona),(columna_persona):(columna_persona+1)]
-      estados_vecinos<-estados[-fila_persona,-columna_persona]
-      vecinos_inmunes<-sum(estados_vecinos)
-      if(vecinos_inmunes==3){
-        estado_persona<-6
-      }
-    }
-    else{
-      estados<-tablero_inmune[(fila_persona-1):(fila_persona),(columna_persona-1):(columna_persona)]
-      estados_vecinos<-estados[-fila_persona,-columna_persona]
-      vecinos_inmunes<-sum(estados_vecinos)
-      if(vecinos_inmunes==3){
-        estado_persona<-6
-      }
-    }
-  }
-  if(estado_persona==6){
-    tiempo_tras_vacunacion<-0
-    tiempo_recuperado<-0
-  }
-}
 return(matriz)
 }
+
 
 # Autores:
 # Gerardo Perez Arriega
