@@ -722,20 +722,19 @@ RecuperacionMuerte <- function(m){
         m[i,4]<-3
         }
     }else{
-      if(m[i,4]==4 and m[i,19]==0){  #Si el sujeto se encuentra latente entra a esta clausula
+      if(m[i,4]==4 and m[i,22]==0){  #Si el sujeto se encuentra latente entra a esta clausula
         esperadoperiodolatencia<- 0
         while(m[i,4]==4){ #Se crea un loop para ver cuantos dias se tarda en recuperarse
           simulacion<-sample(1:100,1)
           if (simulacion/100<=m[i,15]){
-            m[i,19]<-esperadoperiodolatencia
+            m[i,22]<-esperadoperiodolatencia
           }else{
             esperadoperiodolatencia<-esperadoperiodolatencia+1
           }
         }
       }
     }
-    }
-return(m) #Es muy importante que la matriz que este valor regresa se aplique a alguna variable dentro del código general 
+    return(m) #Es muy importante que la matriz que este valor regresa se aplique a alguna variable dentro del código general 
 }
 #Autores:
 #Enrique Martinez
@@ -745,10 +744,10 @@ return(m) #Es muy importante que la matriz que este valor regresa se aplique a a
 Latencia<-function(Matriz){
     for (i in 1:in 1:dim(Matriz)[1]) {
       if(Matriz[i,4]==4){
-        if(Matriz[i,9]>=0&Matriz[i,9]<Matriz[i,19]){
+        if(Matriz[i,9]>=0&Matriz[i,9]<Matriz[i,22]){
           Matriz[i,9]<-Matriz[i,9]+1
       }
-       if(Matriz[i,9]>=Matriz[i,19]){
+       if(Matriz[i,9]>=Matriz[i,22]){
          Matriz[i,9]<-sample(c(1,3),1,prob=c(2,8))
        } 
     }
