@@ -103,7 +103,7 @@ funcion_graficar <- function(M){#La funcion graficar funciona tomando como param
   gmue[dia,2]<-mue
   #TOMA LOS VALORES DE LA MATRIZ MA DE 16 COLUMNAS Y EN BASE A SUS COORDENADAS LAS COLOCA EN LA MATRIZ M
    M<-matrix(6,100,100)
-  for(j in 1:100){
+  for(j in 1:n){
     fila<-MA[j,2]
     columna<-MA[j,3]
     estado<-MA[j,4]
