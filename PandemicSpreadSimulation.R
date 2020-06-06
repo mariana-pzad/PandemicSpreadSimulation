@@ -27,24 +27,106 @@ Tablero <- matrix()
 
 
 #####################################################
-FuncionGraficar <- function(matriz){#La funcion graficar funciona tomando como parametro la matriz generada de las demas funciones y graficandola cada una de una color diferente
-par(mfrow=c(1,1))
-  plot(which(matriz==0, arr.ind=TRUE),col="white", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
-  par(new=T)#Se toman los valores de cada columna en base a la estructura dada por el profesor contra el numero de años.
-  plot(which(matriz==1, arr.ind=TRUE),col="red", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+#IMPRIME LA INFORMACIÓN DE LOS DATA FRAMES (NO LA METIMOS EN LA FUNCION YA QUE ESTO SOLO DEBERÍA GRAFICARSE AL FINAL)
+#par(mfrow=c(1,1))
+#plot(gsus,col="gray",pch=15,xlab="DIAS",ylab="DATOS",xlim=c(0,dias),ylim=c(0,1000))
+#par(new=T)
+#plot(ginf,col="red",pch=15,xlab="DIAS",ylab="DATOS",xlim=c(0,dias),ylim=c(0,1000))
+#par(new=T)
+#plot(gvac,col="yellow",pch=15,xlab="DIAS",ylab="DATOS",xlim=c(0,dias),ylim=c(0,1000))
+#par(new=T)
+#plot(grec,col="orange",pch=15,xlab="DIAS",ylab="DATOS",xlim=c(0,dias),ylim=c(0,1000))
+#par(new=T)
+#plot(glat,col="magenta",pch=15,xlab="DIAS",ylab="DATOS",xlim=c(0,dias),ylim=c(0,1000))
+#par(new=T)
+#plot(gmue,col="green",pch=15,xlab="DIAS",ylab="DATOS",xlim=c(0,dias),ylim=c(0,1000))
+#title("CONTAGIOS VS OTROS FACTORES")
+
+funcion_graficar <- function(M){#La funcion graficar funciona tomando como parametro la matriz generada de las demas funciones y graficandola cada una de una color diferente
+
+   #INICIALIZACIÓN DE VARIABLES
+  dia<-1          #solo se corre una vez!!! es un contador
+  dias<-14        #solo se corre la primera vez
+  vdias<-(1:dias) #solo se corre la primera vez
+  vcont<-(1:dias) #solo se corre la primera vez
+  gsus<-data.frame(vdias,vcont)
+  ginf<-data.frame(vdias,vcont)
+  gvac<-data.frame(vdias,vcont)
+  grec<-data.frame(vdias,vcont)
+  glat<-data.frame(vdias,vcont)
+  gmue<-data.frame(vdias,vcont)
+  
+  #SE CREA LA MATRIZ DE 16 COLUMNAS
+  n<-1000 #numero de individuos
+  #MA<-matrix(0,n,16)
+  #CUENTA EL NUMERO DE CONTAGIADOS, VACUNADOS, LATENTES, ETC Y LOS COLECTA EN DATA FRAMES (USA EL CONTADOR "DIA")
+  sus<-sum(MA[,4] == 0)
+  gsus[dia,2]<-sus
+  inf<-sum(MA[,4] == 1)
+  ginf[dia,2]<-inf
+  vac<-sum(MA[,4] == 2)
+  gvac[dia,2]<-vac
+  rec<-sum(MA[,4] == 3)
+  grec[dia,2]<-rec
+  lat<-sum(MA[,4] == 4)
+  glat[dia,2]<-lat
+  mue<-sum(MA[,4] == 5)
+  gmue[dia,2]<-mue
+  #TOMA LOS VALORES DE LA MATRIZ MA DE 16 COLUMNAS Y EN BASE A SUS COORDENADAS LAS COLOCA EN LA MATRIZ M
+   M<-matrix(6,100,100)
+  for(j in 1:100){
+    fila<-MA[j,2]
+    columna<-MA[j,3]
+    estado<-MA[j,4]
+    M[fila,columna]<-estado
+  }
+  #TOMA LOS VALORES DE LA MATRIZ MA DE 16 COLUMNAS Y LEE SOLO LOS QUE ESTAN EN ESTADO "1" (EN CUARENTENA) Y LOS ALMACENA EN LA MATRIZ B
+   B <- matrix(0,100,100)
+   for (i in 1:100) {
+     for(j in 1:100){
+       if (M[i,j]!=6){
+         fil = i #fila columna 2
+         col = j #columna columna 3
+         for (k in 1:n) {
+           if(MA[k,2]==fil & MA[k,3]== col & MA[k,16]==1){
+             fill<-MA[k,2]
+             coll<-MA[k,3]
+             cuarentena<-MA[k,16]
+             B[fill,coll]<-cuarentena
+           }
+         }
+       }
+     }
+   }
+  
+  #IMPRIME A LOS INDIVIDUOS DE LA MATRIZ M SEGÚN SU ESTADO 
+  par(mfrow=c(1,1))
+  plot(which(M==6, arr.ind=TRUE),col="white", pch=15,xlab="Años",xlim=c(0,150), ylim=c(0,100))
   par(new=T)
-  plot(which(matriz==2, arr.ind=TRUE),col="yellow", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  plot(which(M==0, arr.ind=TRUE),col="gray", pch=15,xlab="Años",xlim=c(0,150), ylim=c(0,100))
   par(new=T)
-  plot(which(matriz==3, arr.ind=TRUE),col="gray50", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  plot(which(M==1, arr.ind=TRUE),col="red", pch=15,xlab="Años",xlim=c(0,150), ylim=c(0,100))
   par(new=T)
-  plot(which(matriz==4, arr.ind=TRUE),col="green", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  plot(which(M==2, arr.ind=TRUE),col="yellow", pch=15,xlab="Años",xlim=c(0,150), ylim=c(0,100))
   par(new=T)
-  plot(which(matriz==5, arr.ind=TRUE),col="black", pch=15,xlab="Años",xlim=c(0,25), ylim=c(0,25))
+  plot(which(M==3, arr.ind=TRUE),col="orange", pch=15,xlab="Años",xlim=c(0,150), ylim=c(0,100))
+  par(new=T)
+  plot(which(M==4, arr.ind=TRUE),col="magenta", pch=15,xlab="Años",xlim=c(0,150), ylim=c(0,100))
+  par(new=T)
+  plot(which(M==5, arr.ind=TRUE),col="green", pch=15,xlab="Años",xlim=c(0,150), ylim=c(0,100))
+  par(new=T)
+  
+  #IMPRIME RECUADROS NEGROS SOBRE CADA INDIVIDUO EN ESTADO "1" (CUARENTENA)
+  plot(which(B==1, arr.ind=TRUE), pch=0,xlab="Años",xlim=c(0,150), ylim=c(0,100))
   par(new=T)
   title("REPRESENTACIÓN PANDEMIA")
-Sys.sleep(.1)
-return(matriz)
-}
+  legend(cex = .8, x = "topright",legend = c("Sus","En","Va", "Re","La","Mu") , fill =  c("gray","Red","yellow","orange","magenta","green"))
+  Sys.sleep(.1)
+  return(M)
+  dia<-dia+1 #ES EL CONTADOR, PARA QUE LA SIGUIENTE VES QUE CORRA LA FORMULA Y CAMBIEN LOS DATOS DE MA, RECOLECRE NUEVA INFORMACIÓN
+            #Y PONER ESA INFORMACIÓN EN LOS DATA FRAMES
+  }
+funcion_graficar(M)
 # Autores:
   #Maricela Alejandra Valero Fuentes
   #Edwin Martin Romero Silva
