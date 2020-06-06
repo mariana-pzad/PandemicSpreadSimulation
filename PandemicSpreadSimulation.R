@@ -1,5 +1,6 @@
 source("helperfunctions_vacunation.R")
 Pob <- 10000
+
 #Inicializar la matriz
 EstadoDelSistema <- matrix(0, nrow=Pob, ncol=22)
 EstadoDelSistema[,1] <- 1:Pob #Columna 1: Identificador del individuo (número:ID)
@@ -49,10 +50,6 @@ EstadoDelSistema[,21][EstadoDelSistema[,12]==1]<-Coordenadas[,1] #Id del trabajo
 #Columna 20: Lugar de trabajo coordenada X (columna)
 #Columna 21: Id_LugarTrabajo
 #Columna 22: Esperado periodo latencia
-
-
-############## Ciclo Principal ############################
-
 
 #####################################################
 #IMPRIME LA INFORMACIÓN DE LOS DATA FRAMES (NO LA METIMOS EN LA FUNCION YA QUE ESTO SOLO DEBERÍA GRAFICARSE AL FINAL)
@@ -161,8 +158,6 @@ funcion_graficar(M)
   #Erick Hinojosa Aguirre
 
 ###############################################################################################################################################################
-
-
 Contagio <- function(Matriz){
   Rp<-sqrt(Pob)
   
@@ -264,12 +259,10 @@ Contagio <- function(Matriz){
   }
   return(Matriz);
 }
-
 #Autores:
 #Araceli Montserrat Rodriguez Crespo
 #Ivan Rigoberto Ibarra Rodriguez
 #Fabiola Jasso Valadez
-
 
 #####################################################
 #Descripcion de la funcion
@@ -373,11 +366,9 @@ MedidasPrecaucion=function(i,Poblacion){
   }
   return(Poblacion)
 }
-
 #Luis David D�vila Torres
 #Carlos Antonio Espinosa Bravo
 #Alan Gerardo Garza Muro
-
 
 CorTrabajador=function(N){
   Ciudad<-(sqrt(Pob))/2 # Se estable la mitad del mapa como el centro de la ciudad 
@@ -452,19 +443,8 @@ GraficaTrabajo<-function(Poblacion){ #ejemplo de grafico de hogar a trabajo
   }
 }#Luis David D�vila Torres
 
-
-
 ###################################################
 
-    columna_ids <- poblacion[,1];
-    # Obtenemos el registro de este individuo.
-    fila <- madim(matriz)[]a_ids);
-    # Lo sacamos de cuarentena.
-    poblacion[fila,16] <- 0;
-    # Reiniciamos su contador de cuarentena
-    poblacion[fila,17] <- 0;
-    return(poblacion);
-}
 
 prueba <- function(poblacion, no_pruebas) {
     # Lista para guardar individuos ya considerados para que no se repitan
@@ -743,7 +723,7 @@ Latencia<-function(Matriz){
     }
   }
   return(Matriz)
-  }
+}
 #La funcion latencia nos sirve para llevar a cabo un conteo del tiempo 
 #que la persona estara en periodo de latencia, en cada iteracion se 
 # agrega 1 y cuando se cumpla el periodo variable pasa a ser 
@@ -753,3 +733,7 @@ Latencia<-function(Matriz){
   #Luis Alberto Guerrero Zuñiga
   #Alan Fernando Mej�?a Aranda
   #Jose Armando Jara Rodriguez 
+
+############## Ciclo Principal ############################
+
+for(){}
