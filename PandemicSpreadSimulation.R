@@ -1,5 +1,9 @@
 source("helperfunctions_vacunation.R")
-Pob <- 10000
+Pob <- 10000;
+# 50 pruebas por dia
+NoPruebas <- 50;
+# 14 dias de cuarentena
+LimiteCuarentena <- 14;
 
 #Inicializar la matriz
 EstadoDelSistema <- matrix(0, nrow=Pob, ncol=22)
@@ -445,6 +449,35 @@ GraficaTrabajo<-function(Poblacion){ #ejemplo de grafico de hogar a trabajo
 
 ###################################################
 
+cuarentena <- function(poblacion, no_pruebas)
+    # Obtenemos los individuos con latencia o infectados obtenidos
+    # aleatoriamente para ponerlos en cuarentena.
+    filas <- prueba(poblacion, no_pruebas);
+    # Iteramos sobre todos los ids para poner estos individuos en cuarentena.
+    for (fila in filas) {
+        # Lo ponemos en cuarentena e iniciamos el contador de 
+        # cuarentena en 0. 
+        poblacion[fila,16] <- 1;
+        poblacion[fila,23] <- 0;
+    }
+    return(poblacion);
+}
+
+avanzar_cuarentena <- function(poblacion) {
+  # Iteramos sobre todos los individuos en busca de los que estan en cuarentena.
+  for (i in 1..dim(poblacion)[0]) {
+    # Si ha cumplido el limite de cuarentena, es sacado de cuarentena.
+    if (poblacion[i,23] == LimiteCuarentena) {
+      poblacion[i,16] <- 0;
+      poblacion[i,23] <- 0;
+    }
+    # Si no ha cumplido el plazo, y esta en cuarentena aumentamos su contador.
+    else if (poblacion[i,16] == 1) {
+      poblacion[i,23] <- poblacion[i,23] + 1;
+    }
+  }
+  return(poblacion);
+}
 
 prueba <- function(poblacion, no_pruebas) {
     # Lista para guardar individuos ya considerados para que no se repitan
@@ -452,7 +485,7 @@ prueba <- function(poblacion, no_pruebas) {
     individuos_considerados <- c();
     # Lista para guardar los individuos que pondremos en cuarentena.
     individuos_en_latencia <- c();
-    # El total de individuos en la población es necesario como l�?mite para la 
+    # El total de individuos en la población es necesario como limite para la 
     # generación de número aleatorios.
     total_individuos <- dim(poblacion)[0];
     # La columna que contiene los ids es la primer columna.
@@ -475,6 +508,8 @@ prueba <- function(poblacion, no_pruebas) {
             # Si este individuo esta latente o infectado lo consideramos para cuarentena
             individuos_en_latencia <- c(individuos_en_latencia, fila);
         } else {
+          # Si no está latente o infectado aumentamos el número total de pruebas
+          # para que no se vean afectadas.
           no_pruebas = no_pruebas + 1;
         }
         individuos_considerados <- c(individuos_considerados, id);
@@ -483,13 +518,9 @@ prueba <- function(poblacion, no_pruebas) {
 }
 # Autores:
 # Victor Francisco Carrizales Castor
-# Natalia ALejandra Garc�?a Armijo
+# Natalia ALejandra Garcia Armijo
 # Fabián Gandarilla López
 
-# Autores:
-# Victor Francisco Carrizales Castor
-# Natalia ALejandra Garc�?a Armijo
-# Fabián Gandarilla López
 #####################################################
 Vacunacion <- function(matriz){
   # Recorreremos la matriz, por individuo
@@ -736,4 +767,14 @@ Latencia<-function(Matriz){
 
 ############## Ciclo Principal ############################
 
-for(){}
+for() {
+
+  # Cuarentena
+  # Hace pruebas aleatorias y poner en cuarentena a personas que se encuentran en latencia o enfermas.
+  EstadoDelSistema <- cuarentena(EstadoDelSistema, NoPruebas);
+  # Incrementar el contador de cuarentena en las personas que estan en ese estado y sacar de cuarentena a las que cumplieron
+  # el periodo de cuarentena.
+  EstadoDelSistema <- avanzar_cuarentena(EstadoDelSistema);
+  ############
+
+}
