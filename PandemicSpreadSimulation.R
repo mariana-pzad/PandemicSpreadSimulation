@@ -1,11 +1,84 @@
-source("helperfunctions_vacunation.R")
+#source("helperfunctions_vacunation.R")
 Pob <- 10000;
 # 50 pruebas por dia
 NoPruebas <- 50;
 # 14 dias de cuarentena
 LimiteCuarentena <- 14;
 
-#Inicializar la matriz
+###########Inicializar la matriz###########
+CorTrabajador=function(N){
+  Ciudad<-(sqrt(Pob))/2 # Se estable la mitad del mapa como el centro de la ciudad 
+  R<-(sqrt(Pob))%/%4 #Simulando el tama�o de una ciudad
+  P=0
+  h<-Ciudad
+  k<-Ciudad
+  Coorde<-matrix(0,N,3)
+  ID<-1
+  while (P<N) {
+    Punto<- c(sample((Ciudad-R):(Ciudad+R),1),sample((Ciudad-R):(Ciudad+R),1))
+    if (((Punto[1]-h)^2 + (Punto[2]-k)^2)<R^2)
+    {
+      Coorde[P+1,2]<-Punto[1]
+      Coorde[P+1,3]<-Punto[2]
+      
+      posx<-which(Coorde[,2]==Punto[1])
+      if(length(posx)>1){
+        posx<-posx[-length(posx)]
+        Pos<-which(Coorde[,3][posx]==Punto[2])
+        IDP<-posx[Pos]
+        if(length(Pos)!=0){
+          if(length(Pos)>1){
+            Coorde[P+1,1]<-Coorde[IDP[1],1]
+          }else{ 
+            Coorde[P+1,1]<-Coorde[IDP,1]
+          }
+        }else{
+          Coorde[P+1,1]<-ID
+          ID<-ID+1
+        }
+      }else{
+        Coorde[P+1,1]<-ID
+        ID<-ID+1
+      }
+      P<-P+1
+      
+    }
+  }
+  return(Coorde)
+}#Luis David D�vila Torres
+
+ContagioTrabajo=function(Poblacion,j){
+  B2=0
+  Pc<-Matriz[j,6] #PROB DE CONTAGIO
+  Idtrabajo<-which(Poblacion[,21]==Poblacion[j,21])
+  
+  if(Poblacion[j,4]==0){
+    Idtrabajo<-Idtrabajo[-which(Idtrabajo==j)]
+    if (sum(Poblacion[Idtrabajo,4]==1)>0 || sum(Poblacion[Idtrabajo,4]==4)>0){ B2=1}
+  }
+  
+  
+  if (B2==1){
+    Poblacion[j,4]<-sample(c(0,4),1,prob=c((1-Pc),Pc))  
+    #Matriz[j,9]<-Matriz[j,9]+1 #Empieza el periodo de latencia
+  }
+  return(Poblacion)
+}#Luis David D�vila Torres
+
+GraficaTrabajo<-function(Poblacion){ #ejemplo de grafico de hogar a trabajo
+  plot(Poblacion[,2],Poblacion[,3])
+  
+  for (k in 1:LT) {
+    Trabaja<-which(Poblacion[,12]==1)
+    Trabaja[k]
+    ey<-c(Poblacion[Trabaja[k],2],Poblacion[Trabaja[k],19]) 
+    ex<-c(Poblacion[Trabaja[k],3],Poblacion[Trabaja[k],20])
+    
+    lines(ex,ey,col=k)
+    points(Poblacion[Trabaja[k],3],Poblacion[Trabaja[k],2],col="gray",lwd=7)
+  }
+}#Luis David D�vila Torres
+
 EstadoDelSistema <- matrix(0, nrow=Pob, ncol=22)
 EstadoDelSistema[,1] <- 1:Pob #Columna 1: Identificador del individuo (número:ID)
 for(j in 1:sqrt(Pob)){ #CICLO PARA LLENAR EL TABLERO
@@ -155,7 +228,7 @@ funcion_graficar <- function(M){#La funcion graficar funciona tomando como param
   dia<-dia+1 #ES EL CONTADOR, PARA QUE LA SIGUIENTE VES QUE CORRA LA FORMULA Y CAMBIEN LOS DATOS DE MA, RECOLECRE NUEVA INFORMACIÓN
             #Y PONER ESA INFORMACIÓN EN LOS DATA FRAMES
   }
-funcion_graficar(M)
+#funcion_graficar(M)
 # Autores:
   #Maricela Alejandra Valero Fuentes
   #Edwin Martin Romero Silva
@@ -374,82 +447,9 @@ MedidasPrecaucion=function(i,Poblacion){
 #Carlos Antonio Espinosa Bravo
 #Alan Gerardo Garza Muro
 
-CorTrabajador=function(N){
-  Ciudad<-(sqrt(Pob))/2 # Se estable la mitad del mapa como el centro de la ciudad 
-  R<-(sqrt(Pob))%/%4 #Simulando el tama�o de una ciudad
-  P=0
-  h<-Ciudad
-  k<-Ciudad
-  Coorde<-matrix(0,N,3)
-  ID<-1
-  while (P<N) {
-    Punto<- c(sample((Ciudad-R):(Ciudad+R),1),sample((Ciudad-R):(Ciudad+R),1))
-    if (((Punto[1]-h)^2 + (Punto[2]-k)^2)<R^2)
-    {
-      Coorde[P+1,2]<-Punto[1]
-      Coorde[P+1,3]<-Punto[2]
-      
-      posx<-which(Coorde[,2]==Punto[1])
-      if(length(posx)>1){
-        posx<-posx[-length(posx)]
-        Pos<-which(Coorde[,3][posx]==Punto[2])
-        IDP<-posx[Pos]
-        if(length(Pos)!=0){
-          if(length(Pos)>1){
-            Coorde[P+1,1]<-Coorde[IDP[1],1]
-          }else{ 
-            Coorde[P+1,1]<-Coorde[IDP,1]
-          }
-        }else{
-          Coorde[P+1,1]<-ID
-          ID<-ID+1
-        }
-      }else{
-        Coorde[P+1,1]<-ID
-        ID<-ID+1
-      }
-      P<-P+1
-      
-    }
-  }
-  return(Coorde)
-}#Luis David D�vila Torres
-
-ContagioTrabajo=function(Poblacion,j){
-  B2=0
-  Pc<-Matriz[j,6] #PROB DE CONTAGIO
-  Idtrabajo<-which(Poblacion[,21]==Poblacion[j,21])
-  
-  if(Poblacion[j,4]==0){
-    Idtrabajo<-Idtrabajo[-which(Idtrabajo==j)]
-    if (sum(Poblacion[Idtrabajo,4]==1)>0 || sum(Poblacion[Idtrabajo,4]==4)>0){ B2=1}
-  }
-  
-  
-  if (B2==1){
-    Poblacion[j,4]<-sample(c(0,4),1,prob=c((1-Pc),Pc))  
-    #Matriz[j,9]<-Matriz[j,9]+1 #Empieza el periodo de latencia
-  }
-  return(Poblacion)
-}#Luis David D�vila Torres
-
-GraficaTrabajo<-function(Poblacion){ #ejemplo de grafico de hogar a trabajo
-  plot(Poblacion[,2],Poblacion[,3])
-  
-  for (k in 1:LT) {
-    Trabaja<-which(Poblacion[,12]==1)
-    Trabaja[k]
-    ey<-c(Poblacion[Trabaja[k],2],Poblacion[Trabaja[k],19]) 
-    ex<-c(Poblacion[Trabaja[k],3],Poblacion[Trabaja[k],20])
-    
-    lines(ex,ey,col=k)
-    points(Poblacion[Trabaja[k],3],Poblacion[Trabaja[k],2],col="gray",lwd=7)
-  }
-}#Luis David D�vila Torres
-
 ###################################################
 
-cuarentena <- function(poblacion, no_pruebas)
+cuarentena <- function(poblacion, no_pruebas){
     # Obtenemos los individuos con latencia o infectados obtenidos
     # aleatoriamente para ponerlos en cuarentena.
     filas <- prueba(poblacion, no_pruebas);
@@ -522,20 +522,69 @@ prueba <- function(poblacion, no_pruebas) {
 # Fabián Gandarilla López
 
 #####################################################
+set.seed(1)
+
+# Funcion que calcula si la persona tiene problemas metabolicos
+problemas_metabolicos <- function()
+{
+    # Del 13 al 56 porciento tienen problemas metabolicos
+    porcentaje_prob <- runif(1, .13, .56)
+    # De ese porcentaje "x" calculamos la probabilidad de que tengan problemas metabolicos
+    con_problemas_metabolicos <- sample(c(0,1), size=1, replace=TRUE, prob=c(1-porcentaje_prob,porcentaje_prob))
+    return(con_problemas_metabolicos)
+}
+
+
+# Funcion que calcula si una persona se vacuna y es efectiva o no
+calcular_vacunacion_susceptible <- function(edad)
+{
+    se_vacuna <- 0
+
+    if((edad>=0.6 & edad<=5) | (edad>=60))
+    {
+        # se vacuna si o si, solo debemos verificar si se aplica bien (si hubo buen manejo)
+        vacuna_bien_aplicada <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.01,0.99))
+        if (vacuna_bien_aplicada)
+        {
+            se_vacuna <- 1
+        }
+    } else 
+    {
+        # solo se vacunan si tienen problemas metabolicos
+        if (problemas_metabolicos())
+        {
+            # Si se vacuna, y ahora verificamos que la vacuna sea bien aplicada (si hubo buen manejo)
+            vacuna_bien_aplicada <- sample(c(0,1), size=1, replace=TRUE, prob=c(0.01,0.99))
+            if (vacuna_bien_aplicada)
+            {
+                se_vacuna <- 1
+            }
+        }
+        
+    }
+    return(se_vacuna)
+}
+
+
+
 Vacunacion <- function(matriz){
   # Recorreremos la matriz, por individuo
-  for(persona in 1:dim(matriz)[1]) {
+  for(persona in 1:Pob) {
     
     
     
     # Obtenemos el estado de la persona
-    anti_vacunas<-matriz[persona,23] #Valor de {0,1} que indica si la persona pertenece al movimiento antivacunas
+matriz[persona,24]<-sample(c(0,1),size=Pob,replace=T,prob=c(0.858342,0.141658) #Probabilidad calculada a partir del % de antivacunas y el % de vacunación para ese sector
+    #Cada periodo de vacunación se realizan encuestas para determinar este valor dentro de la población
+    anti_vacunas<-matriz[persona,24] #Valor de {0,1} que indica si la persona pertenece al movimiento antivacunas
     estado_persona <- matriz[persona,4]
     edad_persona <- matriz[persona,5]
     tiempo_tras_vacunacion <- matriz[persona,17]
     tiempo_recuperado <- matriz[persona,18]
     prob_vacuna<-matriz[persona,8]
-    salud_persona<-matriz[persona,24] #Valor entre 0 y 100 indicador del estado de salud de la persona
+     matriz[persona,25]<-runif(n=Pob,min=0,max=100)
+     #En cada periodo de vacunación se realizan pruebas de salud dentro de la población
+    salud_persona<-matriz[persona,25] #Valor entre 0 y 100 indicador del estado de salud de la persona
     fila_persona<-matriz[persona,2]
     columna_persona<-matriz[persona,3]
     ################################################### Susceptible
@@ -611,7 +660,7 @@ Vacunacion <- function(matriz){
       }
     } 
   }
-  ################################################### Inmunidad del reba�o
+  ################################################### Inmunidad del rebaño
   raiz<-dim(matriz[1])^(0.5)
   tablero_inmune<-matrix(0,ncol=raiz,nrow=ncol=raiz) #Vecindario donde cada celda me indica si la persona es inmune o no
   pos_inmunes<-which(matriz[,4]==6) #Posici�n de personas inmunes
@@ -766,7 +815,8 @@ Latencia<-function(Matriz){
 
 ############## Ciclo Principal ############################
 
-for() {
+for(dia in 1:365) {
+  EstadoDelSistema <- Contagio(EstadoDelSistema)
 
   # Cuarentena
   # Hace pruebas aleatorias y poner en cuarentena a personas que se encuentran en latencia o enfermas.
@@ -775,5 +825,6 @@ for() {
   # el periodo de cuarentena.
   EstadoDelSistema <- avanzar_cuarentena(EstadoDelSistema);
   ############
+  funcion_graficar(EstadoDelSistema)
 
 }
