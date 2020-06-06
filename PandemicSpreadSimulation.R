@@ -12,8 +12,8 @@ Tablero <- matrix()
 #Columna 6: Tasa de contagio [probabilidad]
 #Columna 7: Tasa de letalidad [probabilidad]
 #Columna 8: Tasa de vacunaciÃ³n [probabilidad]
-#Columna 9: Periodo de latencia [dÃ­as]
-#Columna 10: Periodo de enfermedad [dÃ­as]
+#Columna 9: Periodo de latencia [dÃ?as]
+#Columna 10: Periodo de enfermedad [dÃ?as]
 #Columna 11: Radio de movilidad
 #Columna 12: Trabaja [0:No,1:Si]
 #Columna 13: TipoTraslado [0:CochePropio, 1:Transporte publico]
@@ -23,6 +23,11 @@ Tablero <- matrix()
 #Columna 17: Tiempo tras vacunaciÃ³n
 #Columna 18: Tiempo recuperado
 #Columna 19: Esperado periodo latencia
+#Columna 19: Lugar de trabajo coordenada Y (fila)
+#Columna 20: Lugar de trabajo coordenada X (columna)
+#Columna 21: Id_LugarTrabajo
+
+
 ############## Ciclo Principal ############################
 
 
@@ -133,27 +138,138 @@ funcion_graficar(M)
   #Erick Hinojosa Aguirre
 
 ###############################################################################################################################################################
+
+
+Contagio <- function(Matriz){
+  Rp<-sqrt(Pob)
+  
+  DiasCamEstatus<-15
+  for(j in 1:Pob){
+    B<-0
+    Arriba<- j+Rp
+    Abajo<- j-Rp
+    Izqu<-(j-1)
+    Der<-(j+1)
+    InfIzq<- j-(Rp+1) 
+    InfDer<- j-(Rp-1)
+    SupIzq<- j+(Rp-1)
+    SupDer<- j+(Rp+1)
+    
+    if(Matriz[j,4]==0 & Matriz[j,16]==0 ){
+      #0
+      if((Matriz[j,2]!=1 & Matriz[j,2]!= Rp) & (Matriz[j,3]!=1 &  Matriz[j,3]!=Rp) ){ 
+        if((Matriz[Arriba,4]==1 || Matriz[Arriba,4]==4) & Matriz[Arriba,16]==0) {B=1}  #POSICION ARRIBA
+        if((Matriz[Abajo,4]==1 || Matriz[Abajo,4]==4) & Matriz[Abajo,16]==0) {B=1} #POSICION ABAJO
+        if((Matriz[Der,4]==1 || Matriz[Der,4]==4) & Matriz[Der,16]==0) {B=1} #POSICION DERECHA
+        if((Matriz[Izqu,4]==1 || Matriz[Izqu,4]==4) & Matriz[Izqu,16]==0) {B=1} #POSICION IZQUIERDA
+        if((Matriz[InfIzq,4]==1 || Matriz[InfIzq,4]==4) & Matriz[InfIzq,16]==0) {B=1} #DIAGONAL INFERIOR IZQUIERDA
+        if((Matriz[InfDer,4]==1 || Matriz[InfDer,4]==4) & Matriz[InfDer,16]==0) {B=1} #DIAGONAL INFERIOR DERECHA
+        if((Matriz[SupIzq,4]==1 || Matriz[SupIzq,4]==4) & Matriz[SupIzq,16]==0) {B=1} #DIAGONAL SUPERIOR IZQUIERDA
+        if((Matriz[SupDer,4]==1 || Matriz[SupDer,4]==4) & Matriz[SupDer,16]==0) {B=1} #DIAGONAL SUPERIOR DERECHA
+      }
+      #1 Ezquina
+      if(Matriz[j,2]==1 & Matriz[j,3]== 1){ #Arriba, Sup Derecha, Derecha
+        if((Matriz[Arriba,4]==1 || Matriz[Arriba,4]==4) & Matriz[Arriba,16]==0) {B=1}  #POSICION ARRIBA
+        if((Matriz[SupDer,4]==1 || Matriz[SupDer,4]==4) & Matriz[SupDer,16]==0) {B=1} #DIAGONAL SUPERIOR DERECHA
+        if((Matriz[Der,4]==1 || Matriz[Der,4]==4) & Matriz[Der,4]==0) {B=1} #POSICION DERECHA
+      }
+      #2 Ezquina
+      if(Matriz[j,2]==Rp & Matriz[j,3]== 1){ #abajo, derecha, inferior derecha
+        if((Matriz[Abajo,4]==1 || Matriz[Abajo,4]==4) & Matriz[Abajo,4]==0) {B=1} #POSICION ABAJO
+        if((Matriz[Der,4]==1 || Matriz[Der,4]==4) & Matriz[Der,4]==0) {B=1} #POSICION DERECHA
+        if((Matriz[InfDer,4]==1 || Matriz[InfDer,4]==4) & Matriz[InfDer,16]==0) {B=1} #DIAGONAL INFERIOR DERECHA 
+      }
+      #3 Ezquina
+      if(Matriz[j,2]==1 & Matriz[j,3]== Rp){ #Arriba, Izquierda, Superior Izquierda
+        if((Matriz[Arriba,4]==1 || Matriz[Arriba,4]==4) & Matriz[Arriba,16]==0) {B=1}  #POSICION ARRIBA
+        if((Matriz[Izqu,4]==1 || Matriz[Izqu,4]==4) & Matriz[Izqu,4]==0) {B=1} #POSICION IZQUIERDA
+        if((Matriz[SupIzq,4]==1 || Matriz[SupIzq,4]==4) & Matriz[SupIzq,16]==0) {B=1} #DIAGONAL SUPERIOR IZQUIERDA
+      }
+      #4 Ezquina
+      if(Matriz[j,2]== Rp & Matriz[j,3]== Rp){ #Abajo, Izquierda, Inferior Izquierda
+        if((Matriz[Abajo,4]==1 || Matriz[Abajo,4]==4) & Matriz[Abajo,4]==0) {B=1} #POSICION ABAJO
+        if((Matriz[Izqu,4]==1 || Matriz[Izqu,4]==4) & Matriz[Izqu,4]==0) {B=1} #POSICION IZQUIERDA
+        if((Matriz[InfIzq,4]==1 || Matriz[InfIzq,4]==4) & Matriz[InfIzq,4]==0) {B=1} #DIAGONAL INFERIOR IZQUIERDA
+      }
+      #5 Debajo
+      if(Matriz[j,2]==1 & (Matriz[j,3]!= 1  & Matriz[j,3]!= Rp)){ #arriba, izquierda, derecha, sup izquierda, sup derecha 
+        if((Matriz[Arriba,4]==1 || Matriz[Arriba,4]==4) & Matriz[Arriba,16]==0) {B=1}  #POSICION ARRIBA
+        if((Matriz[Der,4]==1 || Matriz[Der,4]==4) & Matriz[Der,4]==0) {B=1} #POSICION DERECHA
+        if((Matriz[Izqu,4]==1 || Matriz[Izqu,4]==4) & Matriz[Izqu,4]==0) {B=1} #POSICION IZQUIERDA
+        if((Matriz[SupIzq,4]==1 || Matriz[SupIzq,4]==4) & Matriz[SupIzq,16]==0) {B=1} #DIAGONAL SUPERIOR IZQUIERDA
+        if((Matriz[SupDer,4]==1 || Matriz[SupDer,4]==4) & Matriz[SupDer,16]==0) {B=1} #DIAGONAL SUPERIOR DERECHA
+      }
+      #6 izquierda
+      if(Matriz[j,3]==1 & (Matriz[j,2]!= 1  & Matriz[j,2]!= Rp)){ #arriba,abajo,derecha,superior derecha, inferior derecha
+        if((Matriz[Arriba,4]==1 || Matriz[Arriba,4]==4) & Matriz[Arriba,16]==0) {B=1}  #POSICION ARRIBA
+        if((Matriz[Abajo,4]==1 || Matriz[Abajo,4]==4) & Matriz[Abajo,4]==0) {B=1} #POSICION ABAJO
+        if((Matriz[Der,4]==1 || Matriz[Der,4]==4) & Matriz[Der,4]==0) {B=1} #POSICION DERECHA
+        if((Matriz[InfDer,4]==1 || Matriz[InfDer,4]==4) & Matriz[InfDer,16]==0) {B=1} #DIAGONAL INFERIOR DERECHA
+        if((Matriz[SupDer,4]==1 || Matriz[SupDer,4]==4) & Matriz[SupDer,16]==0) {B=1} #DIAGONAL SUPERIOR DERECHA
+      }
+      #7 Arriba
+      if(Matriz[j,2]==Rp & (Matriz[j,3]!= 1  & Matriz[j,3]!= Rp)){ 
+        if((Matriz[Abajo,4]==1 || Matriz[Abajo,4]==4) & Matriz[Abajo,4]==0) {B=1} #POSICION ABAJO
+        if((Matriz[Der,4]==1 || Matriz[Der,4]==4) & Matriz[Der,4]==0) {B=1} #POSICION DERECHA
+        if((Matriz[Izqu,4]==1 || Matriz[Izqu,4]==4) & Matriz[Izqu,4]==0) {B=1} #POSICION IZQUIERDA
+        if((Matriz[InfIzq,4]==1 || Matriz[InfIzq,4]==4) & Matriz[InfIzq,4]==0) {B=1} #DIAGONAL INFERIOR IZQUIERDA
+        if((Matriz[InfDer,4]==1 || Matriz[InfDer,4]==4) & Matriz[InfDer,16]==0) {B=1} #DIAGONAL INFERIOR DERECHA
+      }
+      
+      #8 Derecha
+      if(Matriz[j,3]==Rp & (Matriz[j,2]!= 1  & Matriz[j,2]!= Rp)){ #arriba,abajo,izquierda,superior izquierda, inferior izquierda
+        if((Matriz[Arriba,4]==1 || Matriz[Arriba,4]==4) & Matriz[Arriba,16]==0) {B=1}  #POSICION ARRIBA
+        if((Matriz[Abajo,4]==1 || Matriz[Abajo,4]==4) & Matriz[Abajo,4]==0) {B=1} #POSICION ABAJO
+        if((Matriz[Izqu,4]==1 || Matriz[Izqu,4]==4) & Matriz[Izqu,4]==0) {B=1} #POSICION IZQUIERDA
+        if((Matriz[InfIzq,4]==1 || Matriz[InfIzq,4]==4) & Matriz[InfIzq,4]==0) {B=1} #DIAGONAL INFERIOR IZQUIERDA
+        if((Matriz[SupIzq,4]==1 || Matriz[SupIzq,4]==4) & Matriz[SupIzq,16]==0) {B=1} #DIAGONAL SUPERIOR IZQUIERDA
+      }
+      
+    }
+    Pc<-Matriz[j,6] #PROB DE CONTAGIO
+    if (B==1){
+      Matriz[j,4]<-sample(c(0,4),1,prob=c((1-Pc),Pc))  
+      #Matriz[j,9]<-Matriz[j,9]+1 #Empieza el periodo de latencia
+    }
+    if(Matriz[j,9]>DiasCamEstatus){
+      Matriz[j,4]<-1
+      Matriz[j,9]<-0
+      Matriz[j,10]<-Matriz[j,10]+1
+    }
+    Matriz<-ContagioTrabajo(Matriz,j)
+    
+  }
+  return(Matriz);
+}
+
+#Autores:
+#Araceli Montserrat Rodriguez Crespo
+#Ivan Rigoberto Ibarra Rodriguez
+#Fabiola Jasso Valadez
+
+
+#####################################################
 #Descripcion de la funcion
 # La funciÃ³n de Medidas de prevenciÃ³n nos permite modificar la probabilidad de cada individuo en base a la cantidad de infectados que existe en cada tiempo t, 
-# asÃ­ como una variable que nos ayuda a ingresar medidas especiales segÃºn las medidas levantadas por el gobierno, 
-# es importante mencionar que la probabilidad se puede modificar segÃºn caracterÃ­sticas de cada individuo como si esta trabajando o si usa transporte publico
+# asÃ? como una variable que nos ayuda a ingresar medidas especiales segÃºn las medidas levantadas por el gobierno, 
+# es importante mencionar que la probabilidad se puede modificar segÃºn caracterÃ?sticas de cada individuo como si esta trabajando o si usa transporte publico
 # y si su trabajo es de alto, medio o bajo riesgo. 
 
-MedidasPrev=function(i,Poblacion){
+MedidasPrecaucion=function(i,Poblacion){
+  Rp<-sqrt(Pob)
   FASE1<-20   # Numero de infectados para activar la fase
   FASE2<-200  # Numero de infectados para activar la fase
   FASE3<-4000 # Numero de infectados para activar la fase
-  ControlDeFronteras <- 0 #0 Desactivado: La vigilancia es minima, 1 Activado: Cuarentena y estricta revision 
- 
- #---------------
+  
+  #---------------
   x<-1/Poblacion[,6][Poblacion[,12]==1]
-  d<-(x-1)
+  d<-(x-1) 
   T_Trabaja<-(1+(d*.2)) #Proporcion de aumento de la tasa de infeccion por trabajo
- #---------------
+  #---------------
   x<-1/Poblacion[,6][Poblacion[,12]==1 & Poblacion[,13]==1]
   d<-(x-1)
   T_Transporte<-(1+(d*.2)) #Proporcion de aumento de la tasa de infeccion por transporte publico
- #---------------
+  #---------------
   x<-1/Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]
   d<-(x-1)
   T_MedioR<-(1+(d*.2)) #Proporcion de aumento de la tasa de infeccion por trabajo de medio riesgo
@@ -161,28 +277,159 @@ MedidasPrev=function(i,Poblacion){
   x<-1/Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]
   d<-(x-1)
   T_AltoR<-(1+(d*.3)) #Proporcion de aumento de la tasa de infeccion por trabajo de alto riesgo
-
+  
   Infectados<-length(Poblacion[,4][Poblacion[,4]==1]) #Numero de infectados
-
+  
   if(i==1){ #Actualizacion de las probabilidades de contagio segun las caracteristicas de las personas
-  Poblacion[,6][Poblacion[,12]==1]<-Poblacion[,6][Poblacion[,12]==1]*T_Trabaja
-  Poblacion[,6][Poblacion[,12]==1 & Poblacion[,13]==1]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,13]==1]*T_Transporte
-  Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]*T_MedioR
-  Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]*T_AltoR
+    ControlDeFronteras <- 0 #0 Desactivado: La vigilancia es minima, 1 Activado: Cuarentena y estricta revision 
+    Poblacion[,6][Poblacion[,12]==1]<-Poblacion[,6][Poblacion[,12]==1]*T_Trabaja
+    Poblacion[,6][Poblacion[,12]==1 & Poblacion[,13]==1]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,13]==1]*T_Transporte
+    Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==2]*T_MedioR
+    Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]<-Poblacion[,6][Poblacion[,12]==1 & Poblacion[,14]==3]*T_AltoR
   }
-    return(matriz)
-}  
-        } else {
-          no_pruebas = no_pruebas + 1;
-        }
-        individuos_considerados <- c(individuos_considerados, id);
+  
+  if(Infectados==FASE1){
+    sum(Poblacion[,12])
+    Trabaja<-which(Poblacion[,12]==1)
+    Cambio<-sample(c(0,1),size=length(Trabaja),TRUE,prob=c(.05,.95)) 
+    NoTrabajaPox<-which(Cambio==0)
+    PY_t<-Trabaja[NoTrabajaPox]
+    Poblacion[PY_t,12]<-0
+    Poblacion[PY_t,6]<-Poblacion[PY_t,6]/T_Trabaja[NoTrabajaPox]
+    
+    
+    Poblacion[,11]<-10
+    Poblacion[,6]<-Poblacion[,6]*.95
+  }
+  if(Infectados==FASE2){
+    sum(Poblacion[,12])
+    Trabaja<-which(Poblacion[,12]==1)
+    Cambio<-sample(c(0,1),size=length(Trabaja),TRUE,prob=c(.1,.9)) 
+    NoTrabajaPox<-which(Cambio==0)
+    PY_t<-Trabaja[NoTrabajaPox]
+    Poblacion[PY_t,12]<-0
+    Poblacion[PY_t,6]<-Poblacion[PY_t,6]/T_Trabaja[NoTrabajaPox]
+    
+    Poblacion[,11]<-5
+    Poblacion[,6]<-Poblacion[,6]*.90
+    ControlDeFronteras<-1
+  }
+  if(Infectados==FASE3){
+    sum(Poblacion[,12])
+    Trabaja<-which(Poblacion[,12]==1)
+    Cambio<-sample(c(0,1),size=length(Trabaja),TRUE,prob=c(.3,.7)) 
+    NoTrabajaPox<-which(Cambio==0)
+    PY_t<-Trabaja[NoTrabajaPox]
+    Poblacion[PY_t,12]<-0
+    Poblacion[PY_t,6]<-Poblacion[PY_t,6]/T_Trabaja[NoTrabajaPox]
+    
+    Poblacion[,11]<-1
+    Poblacion[,6]<-Poblacion[,6]*.80
+  }
+  if(ControlDeFronteras==0){
+    A<-sample(c(1,0), 1, prob=c(0.5,0.5)) #Probabilidad de .5 que el que llegue al mapa este infectado
+    PX<-sample(1:Rp,1)
+    PY<-sample(1:Rp,1)
+    P<-sample(1:Pob,1)
+    if(A==1 && Poblacion[PY,4]== 0 ){
+      Poblacion[P,2]<-PY
+      Poblacion[P,3]<-PX
+      Poblacion[P,4]<-A
     }
-    return(individuos_en_latencia);
+  }
+  if(ControlDeFronteras==1){ 
+    A<-sample(c(1,0), 1, prob=c(0.1,0.9)) #Probabilidad de .1 que el que llegue al mapa este infectado
+    PX<-sample(1:Rp,1)
+    PY<-sample(1:Rp,1)
+    P<-sample(1:Pob,1)
+    if(A==1 && Poblacion[PY,4]== 0 ){
+      Poblacion[P,2]<-PY
+      Poblacion[P,3]<-PX
+      Poblacion[P,16]<-1 #Se envia a cuarentena
+    }
+  }
+  return(Poblacion)
 }
-# Autores:
-# Victor Francisco Carrizales Castor
-# Natalia ALejandra GarcÃ­a Armijo
-# FabiÃ¡n Gandarilla LÃ³pez
+
+#Luis David Dávila Torres
+#Carlos Antonio Espinosa Bravo
+#Alan Gerardo Garza Muro
+
+
+CorTrabajador=function(N){
+  Ciudad<-(sqrt(Pob))/2 # Se estable la mitad del mapa como el centro de la ciudad 
+  R<-(sqrt(Pob))%/%4 #Simulando el tamaï¿½o de una ciudad
+  P=0
+  h<-Ciudad
+  k<-Ciudad
+  Coorde<-matrix(0,N,3)
+  ID<-1
+  while (P<N) {
+    Punto<- c(sample((Ciudad-R):(Ciudad+R),1),sample((Ciudad-R):(Ciudad+R),1))
+    if (((Punto[1]-h)^2 + (Punto[2]-k)^2)<R^2)
+    {
+      Coorde[P+1,2]<-Punto[1]
+      Coorde[P+1,3]<-Punto[2]
+      
+      posx<-which(Coorde[,2]==Punto[1])
+      if(length(posx)>1){
+        posx<-posx[-length(posx)]
+        Pos<-which(Coorde[,3][posx]==Punto[2])
+        IDP<-posx[Pos]
+        if(length(Pos)!=0){
+          if(length(Pos)>1){
+            Coorde[P+1,1]<-Coorde[IDP[1],1]
+          }else{ 
+            Coorde[P+1,1]<-Coorde[IDP,1]
+          }
+        }else{
+          Coorde[P+1,1]<-ID
+          ID<-ID+1
+        }
+      }else{
+        Coorde[P+1,1]<-ID
+        ID<-ID+1
+      }
+      P<-P+1
+      
+    }
+  }
+  return(Coorde)
+}#Luis David Dávila Torres
+
+ContagioTrabajo=function(Poblacion,j){
+  B2=0
+  Pc<-Matriz[j,6] #PROB DE CONTAGIO
+  Idtrabajo<-which(Poblacion[,21]==Poblacion[j,21])
+  
+  if(Poblacion[j,4]==0){
+    Idtrabajo<-Idtrabajo[-which(Idtrabajo==j)]
+    if (sum(Poblacion[Idtrabajo,4]==1)>0 || sum(Poblacion[Idtrabajo,4]==4)>0){ B2=1}
+  }
+  
+  
+  if (B2==1){
+    Poblacion[j,4]<-sample(c(0,4),1,prob=c((1-Pc),Pc))  
+    #Matriz[j,9]<-Matriz[j,9]+1 #Empieza el periodo de latencia
+  }
+  return(Poblacion)
+}#Luis David Dávila Torres
+
+GraficaTrabajo<-function(Poblacion){ #ejemplo de grafico de hogar a trabajo
+  plot(Poblacion[,2],Poblacion[,3])
+  
+  for (k in 1:LT) {
+    Trabaja<-which(Poblacion[,12]==1)
+    Trabaja[k]
+    ey<-c(Poblacion[Trabaja[k],2],Poblacion[Trabaja[k],19]) 
+    ex<-c(Poblacion[Trabaja[k],3],Poblacion[Trabaja[k],20])
+    
+    lines(ex,ey,col=k)
+    points(Poblacion[Trabaja[k],3],Poblacion[Trabaja[k],2],col="gray",lwd=7)
+  }
+}#Luis David Dávila Torres
+
+
 
 ###################################################
 
@@ -202,7 +449,7 @@ prueba <- function(poblacion, no_pruebas) {
     individuos_considerados <- c();
     # Lista para guardar los individuos que pondremos en cuarentena.
     individuos_en_latencia <- c();
-    # El total de individuos en la poblaciÃ³n es necesario como lÃ­mite para la 
+    # El total de individuos en la poblaciÃ³n es necesario como lÃ?mite para la 
     # generaciÃ³n de nÃºmero aleatorios.
     total_individuos <- dim(poblacion)[0];
     # La columna que contiene los ids es la primer columna.
@@ -233,94 +480,196 @@ prueba <- function(poblacion, no_pruebas) {
 }
 # Autores:
 # Victor Francisco Carrizales Castor
-# Natalia ALejandra GarcÃ­a Armijo
+# Natalia ALejandra GarcÃ?a Armijo
 # FabiÃ¡n Gandarilla LÃ³pez
 
-###################################################
-Contagio <- function(matriz){
-NF<-length(Matriz[,1])#NUMERO DE FILAS
-NC<-length(Matriz[1,])#NUMERO DE COLUMNAS
-
-#TOMANDO EN CUENTA LOS LATENTES
-for(i in 2:NF-1){ #Filas
-  for (j in 2:NC-1){ #Columnas
-    if(Matriz[i,j]==0){
-      if(Matriz[i-1,j]==4){
-        Matriz[i,j]=4}
-         else if (Matriz[i+1,j]==4){
-             Matriz[i,j]=4}
-           else if (Matriz[i,j-1]==4){
-             Matriz[i,j]=4}
-             else if (Matriz[i,j+1]==4){
-               Matriz[i,j]=4
-       }
-    }
-  }
-}
-
-#TOMANDO EN CUENTA LOS INFECTADOS
-for(i in 2:NF-1){ #Filas
-  for (j in 2:NC-1){ #Columnas
-    if(Matriz[i,j]==0){
-      if(Matriz[i-1,j]==1){
-        Matriz[i,j]=4}
-      else if (Matriz[i+1,j]==1){
-        Matriz[i,j]=4}
-      else if (Matriz[i,j-1]==1){
-        Matriz[i,j]=4}
-      else if (Matriz[i,j+1]==1){
-        Matriz[i,j]=4
-      }
-    }
-  }
-}
-
-return(Matriz);
-#Autores:
-#Araceli Montserrat Rodriguez Crespo
-#Ivan Rigoberto Ibarra Rodriguez
-#Fabiola Jasso Valadez
+# Autores:
+# Victor Francisco Carrizales Castor
+# Natalia ALejandra GarcÃ?a Armijo
+# FabiÃ¡n Gandarilla LÃ³pez
 #####################################################
-
-Contagio <- function(matriz){
-NF<-length(Matriz[,1])#NUMERO DE FILAS
-NC<-length(Matriz[1,])#NUMERO DE COLUMNAS
-
-#TOMANDO EN CUENTA LOS LATENTES
-for(i in 2:NF-1){ #Filas
-  for (j in 2:NC-1){ #Columnas
-    if(Matriz[i,j]==0){
-      if(Matriz[i-1,j]==4){
-        Matriz[i,j]=4}
-         else if (Matriz[i+1,j]==4){
-             Matriz[i,j]=4}
-           else if (Matriz[i,j-1]==4){
-             Matriz[i,j]=4}
-             else if (Matriz[i,j+1]==4){
-               Matriz[i,j]=4
-       }
+Vacunacion <- function(matriz){
+  # Recorreremos la matriz, por individuo
+  for(persona in 1:dim(matriz)[1]) {
+    
+    
+    
+    # Obtenemos el estado de la persona
+    anti_vacunas<-matriz[persona,23] #Valor de {0,1} que indica si la persona pertenece al movimiento antivacunas
+    estado_persona <- matriz[persona,4]
+    edad_persona <- matriz[persona,5]
+    tiempo_tras_vacunacion <- matriz[persona,17]
+    tiempo_recuperado <- matriz[persona,18]
+    prob_vacuna<-matriz[persona,8]
+    salud_persona<-matriz[persona,24] #Valor entre 0 y 100 indicador del estado de salud de la persona
+    fila_persona<-matriz[persona,2]
+    columna_persona<-matriz[persona,3]
+    ################################################### Susceptible
+    if (anti_vacunas!=0){
+      if (estado_persona == 0)
+      {
+        # Si se vacuna, calculamos ahora la efectividad
+        if (calcular_vacunacion_susceptible(edad_persona) == 1)
+        {
+          # Vacunado, se cambia el estado de la persona a vacunado
+          estado_persona <- 2
+          tiempo_tras_vacunacion<-0
+        }
+      }
+      ################################################### Vacunado
+      else if (estado_persona == 2)
+      {
+        # Despues del año se vuelve a vacunar
+        if (tiempo_tras_vacunacion>=365)
+        {
+          prob_vacuna<-0.7
+          se_vuelve_a_vacunar <- sample(c(0,1), size=1, prob=c(1-prob_vacuna,prob_vacuna))
+          
+          
+          
+          # Si no se vacuna, pasa nuevamente a ser susceptible
+          if (se_vuelve_a_vacunar == 0)
+          {
+            estado_persona <- 0
+            tiempo_tras_vacunacion<-0
+          }
+        }
+      }
+      ################################################### Recuperado
+      else if (estado_persona == 3)
+      {
+        # A los 90 dias de recuperado se puede vacunar
+        if (tiempo_recuperado>=90)
+        {
+          prob_vacuna=0.4
+          se_vacuna <- sample(c(0,1), size=1, prob=c(1-prob_vacuna,prob_vacuna))
+          
+          
+          
+          # Si se vacuna, ahora pasa a estado vacunado
+          if (se_vacuna == 1)
+          {
+            estado_persona <- 2
+            tiempo_tras_vacunacion<-0
+            tiempo_recuperado<-0
+          }
+        }
+      }
     }
+    ################################################### Inmunizado
+    if (estado_persona==2)
+    {
+      if(salud_persona>quantile(matriz[,24],0.95)
+         {
+           prob_inmune<-0.95
+      }
+      else if(salud_persona<quantile(matriz[,24],0.05)
+              {
+                prob_inmune<-0.05
+      }
+      else{
+        prob_inmune<-runif(n=1,min=0.05,max=0.95)
+      }
+      inmune<-sample(c(0,1),size=1,prob=c(1-prob_inmune,prob_inmune))
+      if(inmune==1){
+        estado_persona<-6
+        tiempo_tras_vacunacion<-0
+      }
+    } 
   }
-}
-
-#TOMANDO EN CUENTA LOS INFECTADOS
-for(i in 2:NF-1){ #Filas
-  for (j in 2:NC-1){ #Columnas
-    if(Matriz[i,j]==0){
-      if(Matriz[i-1,j]==1){
-        Matriz[i,j]=4}
-      else if (Matriz[i+1,j]==1){
-        Matriz[i,j]=4}
-      else if (Matriz[i,j-1]==1){
-        Matriz[i,j]=4}
-      else if (Matriz[i,j+1]==1){
-        Matriz[i,j]=4
+  ################################################### Inmunidad del rebaño
+  raiz<-dim(matriz[1])^(0.5)
+  tablero_inmune<-matrix(0,ncol=raiz,nrow=ncol=raiz) #Vecindario donde cada celda me indica si la persona es inmune o no
+  pos_inmunes<-which(matriz[,4]==6) #Posición de personas inmunes
+  filas_inmunes<-rep(0,raiz) #Filas con personas inmunes en el vecindario 
+  filas_inmunes[pos_inmunes<=raiz]<-1 #Las primeras personas se hallan en la fila 1 
+  filas_inmunes[pos_inmunes>raiz]<-1+floor(pos_inmunes/raiz) #A partir de la persona raiz+1 , estaremos en la fila 2 en delante
+  columnas_inmunes<-rep(0,raiz) #Columnas con personas inmunes en el vecindario
+  columnas_inmunes[pos_inmunes<=raiz]<-pos_inmunes #Las primeras raiz personas estarán en el número de columna indicado por su posición en la columna de estados
+  columnas_inmunes[pos_inmunes>raiz]<-pos_inmunes-raiz*(floor(pos_inmunes/raiz)) #A partir de la persona raiz+1, tenemos que restarle a la posición en la columna de estados
+  tablero_inmune[filas_inmunes,columnas_inmunes]<-1 #Las filas y columnas obtenidas corresponden a personas inmunes
+  if(fila_persona>1 & fila_persona<raiz ){
+    if (columna_persona>1 & columna_persona<raiz){
+      estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona-1):(columna_persona+1)]
+      estados_vecinos<-estados[-fila_persona,-columna_persona]
+      vecinos_inmunes<-sum(estados_vecinos)
+      if(vecinos_inmunes==8){
+        estado_persona<-6
+      }
+    } 
+  }
+  else if (fila_persona>1 & fila_persona<raiz){
+    if (columna_persona==1)
+    {
+      estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona):(columna_persona+1)]
+      estados_vecinos<-estados[-fila_persona,-columna_persona]
+      vecinos_inmunes<-sum(estados_vecinos)
+      if(vecinos_inmunes==5){
+        estado_persona<-6
+      }
+    }
+    else{
+      estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona-1):(columna_persona)]
+      estados_vecinos<-estados[-fila_persona,-columna_persona]
+      vecinos_inmunes<-sum(estados_vecinos)
+      if(vecinos_inmunes==5){
+        estado_persona<-6
       }
     }
   }
+  
+  
+  
+  else if (fila_persona==1)
+  {
+    if (columna_persona==1)
+    {
+      estados<-tablero_inmune[(fila_persona):(fila_persona+1),(columna_persona):(columna_persona+1)]
+      estados_vecinos<-estados[-fila_persona,-columna_persona]
+      vecinos_inmunes<-sum(estados_vecinos)
+      if(vecinos_inmunes==3){
+        estado_persona<-6
+      }
+    }
+    else{
+      estados<-tablero_inmune[(fila_persona):(fila_persona+1),(columna_persona-1):(columna_persona)]
+      estados_vecinos<-estados[-fila_persona,-columna_persona]
+      vecinos_inmunes<-sum(estados_vecinos)
+      if(vecinos_inmunes==3){
+        estado_persona<-6
+      }
+    }
+  }
+  
+  
+  
+  else
+  {
+    if (columna_persona==1)
+    {
+      estados<-tablero_inmune[(fila_persona-1):(fila_persona),(columna_persona):(columna_persona+1)]
+      estados_vecinos<-estados[-fila_persona,-columna_persona]
+      vecinos_inmunes<-sum(estados_vecinos)
+      if(vecinos_inmunes==3){
+        estado_persona<-6
+      }
+    }
+    else{
+      estados<-tablero_inmune[(fila_persona-1):(fila_persona),(columna_persona-1):(columna_persona)]
+      estados_vecinos<-estados[-fila_persona,-columna_persona]
+      vecinos_inmunes<-sum(estados_vecinos)
+      if(vecinos_inmunes==3){
+        estado_persona<-6
+      }
+    }
+  }
+  if(estado_persona==6){
+    tiempo_tras_vacunacion<-0
+    tiempo_recuperado<-0
+  }
 }
-
-return(Matriz);
+return(matriz)
+}
 
 # Autores:
 # Gerardo Perez Arriega
@@ -379,5 +728,5 @@ Latencia<-function(Matriz){
 #cada uno, en este caso 80% para recuperado y 20% para infectado 
 #Autores:
   #Luis Alberto Guerrero ZuÃ±iga
-  #Alan Fernando MejÃ­a Aranda
+  #Alan Fernando MejÃ?a Aranda
   #Jose Armando Jara Rodriguez 
