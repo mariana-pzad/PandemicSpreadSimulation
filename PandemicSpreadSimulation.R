@@ -6,7 +6,7 @@ NoPruebas <- 50;
 LimiteCuarentena <- 14;
 
 #Inicializar la matriz
-EstadoDelSistema <- matrix(0, nrow=Pob, ncol=22)
+EstadoDelSistema <- matrix(0, nrow=Pob, ncol=24)
 EstadoDelSistema[,1] <- 1:Pob #Columna 1: Identificador del individuo (número:ID)
 for(j in 1:sqrt(Pob)){ #CICLO PARA LLENAR EL TABLERO
   EstadoDelSistema[,2][EstadoDelSistema[,1] <= (j*sqrt(Pob)) & EstadoDelSistema[,1] > ((j-1)*sqrt(Pob)) ] <- j
@@ -54,7 +54,8 @@ EstadoDelSistema[,21][EstadoDelSistema[,12]==1]<-Coordenadas[,1] #Id del trabajo
 #Columna 20: Lugar de trabajo coordenada X (columna)
 #Columna 21: Id_LugarTrabajo
 #Columna 22: Esperado periodo latencia
-
+#Columna 23: ¿El sujeto pertenece al movimiento antivacunas? [0:No, 1:Sí]
+#Columna 24: Estado de salud del individuo [Valor de 0 a 100]
 #####################################################
 #IMPRIME LA INFORMACIÓN DE LOS DATA FRAMES (NO LA METIMOS EN LA FUNCION YA QUE ESTO SOLO DEBERÍA GRAFICARSE AL FINAL)
 #par(mfrow=c(1,1))
@@ -525,52 +526,57 @@ prueba <- function(poblacion, no_pruebas) {
 
 Vacunacion <- function(matriz){
   # Recorreremos la matriz, por individuo
-  for(persona in 1:dim(matriz)[1]) {
-    # Obtenemos el estado de la persona
-    anti_vacunas<- sample(c(0,1), size=1, replace=TRUE, prob=c(0.95,0.05)) #Valor de {0,1} que indica si la persona pertenece al movimiento antivacunas
-    estado_persona <- matriz[persona,4]
-    edad_persona <- matriz[persona,5]
-    tiempo_tras_vacunacion <- matriz[persona,17]
-    tiempo_recuperado <- matriz[persona,18]
-    prob_vacuna<-matriz[persona,8]
-    fila_persona<-matriz[persona,2]
-    columna_persona<-matriz[persona,3]
+  for(persona in 1:Pob) {
+    EstadoDelSistema[persona,23]<-sample(c(0,1),size=Pob,replace=T,prob=c(0.858342,0.141658) #Antivacunas
+    #Cada periodo de vacunación se realizan 
+     #encuestas para determinar este valor dentro de la población
+    anti_vacunas<-EstadoDelSistema[persona,23]
+    estado_persona <- EstadoDelSistema[persona,4]
+    edad_persona <- EstadoDelSistema[persona,5]
+    tiempo_tras_vacunacion <- EstadoDelSistema[persona,17]
+    tiempo_recuperado <- EstadoDelSistema[persona,18]
+    prob_vacuna<-EstadoDelSistema[persona,8]
+    EstadoDelSistema[,24]<-runif(n=Pob,min=0,max=100)
+     #En cada periodo de vacunación se realizan pruebas de salud dentro de la población
+    salud_persona<-EstadoDelSistema[persona,24] #Valor entre 0 y 100 indicador del estado de salud de la persona
+    fila_persona<-EstadoDelSistema[persona,2]
+    columna_persona<-EstadoDelSistema[persona,3]
     ################################################### Susceptible
-    if (anti_vacunas == 0){
-      if (estado_persona == 0)
+    if (anti_vacunas!=0){ #Solo se vacuna si NO pertenece al movimiento
+    if (estado_persona == 0)
+    {
+      # Si se vacuna, calculamos ahora la efectividad
+      if (calcular_vacunacion_susceptible(edad_persona) == 1)
       {
-        # Si se vacuna, calculamos ahora la efectividad
-        if (calcular_vacunacion_susceptible(edad_persona) == 1)
-        {
-          # Vacunado, se cambia el estado de la persona a vacunado
-          estado_persona <- 2
-          tiempo_tras_vacunacion<-0
-        }
+        # Vacunado, se cambia el estado de la persona a vacunado
+        estado_persona <- 2
+	tiempo_tras_vacunacion<-0
       }
-      ################################################### Vacunado
-      else if (estado_persona == 2)
+    }
+    ################################################### Vacunado
+    else if (estado_persona == 2)
+    {
+      # Despues del año se vuelve a vacunar
+      if (tiempo_tras_vacunacion>=365)
       {
-        # Despues del a�o se vuelve a vacunar
-        if (tiempo_tras_vacunacion>=365)
-        {
-          prob_vacuna<-0.7
+	  prob_vacuna<-0.7
           se_vuelve_a_vacunar <- sample(c(0,1), size=1, prob=c(1-prob_vacuna,prob_vacuna))
-          
+
           # Si no se vacuna, pasa nuevamente a ser susceptible
           if (se_vuelve_a_vacunar == 0)
           {
             estado_persona <- 0
             tiempo_tras_vacunacion<-0
           }
-        }
       }
-      ################################################### Recuperado
-      else if (estado_persona == 3)
+    }
+    ################################################### Recuperado
+    else if (estado_persona == 3)
+    {
+      # A los 90 dias de recuperado se puede vacunar
+      if (tiempo_recuperado>=90)
       {
-        # A los 90 dias de recuperado se puede vacunar
-        if (tiempo_recuperado>=90)
-        {
-          prob_vacuna=0.4
+	  prob_vacuna=0.4
           se_vacuna <- sample(c(0,1), size=1, prob=c(1-prob_vacuna,prob_vacuna))
 
           # Si se vacuna, ahora pasa a estado vacunado
@@ -580,17 +586,122 @@ Vacunacion <- function(matriz){
             tiempo_tras_vacunacion<-0
             tiempo_recuperado<-0
           }
-        }
       }
     }
   }
+   ################################################### Inmunizado
+   if (estado_persona==2)
+   {
+   if(salud_persona>quantile(EstadoDelSistema[,24],0.95)
+   {
+   prob_inmune<-0.95
+   }
+   else if(salud_persona<quantile(EstadoDelSistema[,24],0.05)
+   {
+   prob_inmune<-0.05
+   }
+   else{
+   prob_inmune<-runif(n=1,min=0.05,max=0.95)
+   }
+   inmune<-sample(c(0,1),size=1,prob=c(1-prob_inmune,prob_inmune))
+   if(inmune==1){
+   estado_persona<-6
+   tiempo_tras_vacunacion<-0
+   }
+   } 
+   }
+   ################################################### Inmunidad del rebaño
+   raiz<-Pob^(0.5)
+   tablero_inmune<-EstadoDelSistema(0,ncol=raiz,nrow=raiz) #Vecindario donde cada celda me indica si la persona es inmune o no
+   pos_inmunes<-which(EstadoDelSistema[,4]==6) #Posición de personas inmunes
+   filas_inmunes<-rep(0,raiz) #Filas con personas inmunes en el vecindario 
+   filas_inmunes[pos_inmunes<=raiz]<-1 #Las primeras personas se hallan en la fila 1 
+   filas_inmunes[pos_inmunes>raiz]<-1+floor(pos_inmunes/raiz) #A partir de la persona raiz+1 , estaremos en la fila 2 en delante
+   columnas_inmunes<-rep(0,raiz) #Columnas con personas inmunes en el vecindario
+   columnas_inmunes[pos_inmunes<=raiz]<-pos_inmunes #Las primeras raiz personas estarán en el número de columna indicado por su posición en la columna de estados
+   columnas_inmunes[pos_inmunes>raiz]<-pos_inmunes-raiz*(floor(pos_inmunes/raiz)) #A partir de la persona raiz+1, tenemos que restarle a la posición en la columna de estados
+   tablero_inmune[filas_inmunes,columnas_inmunes]<-1 #Las filas y columnas obtenidas corresponden a personas inmunes
+   if(fila_persona>1 & fila_persona<raiz ){
+   	if (columna_persona>1 & columna_persona<raiz){
+        estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona-1):(columna_persona+1)]
+        estados_vecinos<-estados[-fila_persona,-columna_persona]
+        vecinos_inmunes<-sum(estados_vecinos)
+        if(vecinos_inmunes==8){
+        estado_persona<-6
+        }
+        } 
+   }
+        else if (fila_persona>1 & fila_persona<raiz){
+        if (columna_persona==1)
+        {
+        estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona):(columna_persona+1)]
+        estados_vecinos<-estados[-fila_persona,-columna_persona]
+        vecinos_inmunes<-sum(estados_vecinos)
+        if(vecinos_inmunes==5){
+        estado_persona<-6
+        }
+        }
+        else{
+        estados<-tablero_inmune[(fila_persona-1):(fila_persona+1),(columna_persona-1):(columna_persona)]
+        estados_vecinos<-estados[-fila_persona,-columna_persona]
+        vecinos_inmunes<-sum(estados_vecinos)
+        if(vecinos_inmunes==5){
+        estado_persona<-6
+        }
+        }
+        }
+
+        else if (fila_persona==1)
+        {
+         if (columna_persona==1)
+        {
+        estados<-tablero_inmune[(fila_persona):(fila_persona+1),(columna_persona):(columna_persona+1)]
+        estados_vecinos<-estados[-fila_persona,-columna_persona]
+        vecinos_inmunes<-sum(estados_vecinos)
+        if(vecinos_inmunes==3){
+        estado_persona<-6
+        }
+        }
+        else{
+        estados<-tablero_inmune[(fila_persona):(fila_persona+1),(columna_persona-1):(columna_persona)]
+        estados_vecinos<-estados[-fila_persona,-columna_persona]
+        vecinos_inmunes<-sum(estados_vecinos)
+        if(vecinos_inmunes==3){
+        estado_persona<-6
+        }
+        }
+        }
+
+        else
+        {
+        if (columna_persona==1)
+        {
+        estados<-tablero_inmune[(fila_persona-1):(fila_persona),(columna_persona):(columna_persona+1)]
+        estados_vecinos<-estados[-fila_persona,-columna_persona]
+        vecinos_inmunes<-sum(estados_vecinos)
+        if(vecinos_inmunes==3){
+        estado_persona<-6
+        }
+        }
+        else{
+        estados<-tablero_inmune[(fila_persona-1):(fila_persona),(columna_persona-1):(columna_persona)]
+        estados_vecinos<-estados[-fila_persona,-columna_persona]
+        vecinos_inmunes<-sum(estados_vecinos)
+        if(vecinos_inmunes==3){
+        estado_persona<-6
+        }
+        }
+        }
+       if(estado_persona==6){
+       tiempo_tras_vacunacion<-0
+       tiempo_recuperado<-0
+       }
+   }
 return(matriz)
 }
-
-
 # Autores:
-# Gerardo Perez Arriega
-# Mariana Perez Arredondo
+# Gerardo Pérez Arriaga
+# Mariana Pérez Arredondo
 
 ##########################################################
 
